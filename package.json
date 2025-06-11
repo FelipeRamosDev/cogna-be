@@ -1,0 +1,29 @@
+{
+  "name": "cogna-be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r dotenv/config index.js",
+    "dev": "nodemon -r dotenv/config index.js",
+    "test": "npx jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FelipeRamosDev/cogna-be.git"
+  },
+  "author": "Felipe Ramos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FelipeRamosDev/cogna-be/issues"
+  },
+  "homepage": "https://github.com/FelipeRamosDev/cogna-be#readme",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "jest": "^30.0.0",
+    "nodemon": "^3.1.10"
+  }
+}
