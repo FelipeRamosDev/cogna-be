@@ -1,0 +1,82 @@
+[
+   {
+      "id": 1,
+      "name": "Wireless Mouse",
+      "description": "Ergonomic wireless mouse with adjustable DPI.",
+      "price": 25.99,
+      "category": "Electronics",
+      "inStock": true
+   },
+   {
+      "id": 2,
+      "name": "Bluetooth Headphones",
+      "description": "Noise-cancelling over-ear headphones.",
+      "price": 59.99,
+      "category": "Electronics",
+      "inStock": true
+   },
+   {
+      "id": 3,
+      "name": "Coffee Mug",
+      "description": "Ceramic mug with 350ml capacity.",
+      "price": 8.5,
+      "category": "Kitchen",
+      "inStock": true
+   },
+   {
+      "id": 4,
+      "name": "Notebook",
+      "description": "A5 lined notebook with 100 pages.",
+      "price": 4.99,
+      "category": "Stationery",
+      "inStock": true
+   },
+   {
+      "id": 5,
+      "name": "Desk Lamp",
+      "description": "LED desk lamp with adjustable brightness.",
+      "price": 19.99,
+      "category": "Home",
+      "inStock": false
+   },
+   {
+      "id": 6,
+      "name": "Water Bottle",
+      "description": "Stainless steel insulated water bottle.",
+      "price": 15.0,
+      "category": "Outdoors",
+      "inStock": true
+   },
+   {
+      "id": 7,
+      "name": "USB-C Cable",
+      "description": "1m USB-C to USB-A charging cable.",
+      "price": 6.99,
+      "category": "Electronics",
+      "inStock": true
+   },
+   {
+      "id": 8,
+      "name": "Yoga Mat",
+      "description": "Non-slip yoga mat, 6mm thick.",
+      "price": 22.5,
+      "category": "Fitness",
+      "inStock": false
+   },
+   {
+      "id": 9,
+      "name": "Ballpoint Pens",
+      "description": "Pack of 10 blue ink ballpoint pens.",
+      "price": 3.49,
+      "category": "Stationery",
+      "inStock": true
+   },
+   {
+      "id": 10,
+      "name": "Portable Charger",
+      "description": "10000mAh portable power bank.",
+      "price": 29.99,
+      "category": "Electronics",
+      "inStock": true
+   }
+]
