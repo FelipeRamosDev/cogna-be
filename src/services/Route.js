@@ -1,5 +1,6 @@
 const express = require('express');
-const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 
 /**
  * Route Service
@@ -22,18 +23,19 @@ class Route {
       const {
          path,
          method,
-         middlewares = [],
-         controller = () => {}
+         controller,
+         middlewares = []
       } = setup;
 
+      this.router = express.Router();
       this.validateConfigs(setup);
 
       this.path = path;
       this.method = method;
       this.middlewares = middlewares;
       this.controller = controller;
-      this.router = router;
 
+      this.loadController();
       this.setRoute();
    }
 
@@ -63,6 +65,34 @@ class Route {
 
       if (!allowedMethods.includes(setup.method.toUpperCase())) {
          throw new Error(`Invalid method "${setup.method}" for the Route service! Allowed methods are: ${allowedMethods.join(', ')}`);
+      }
+   }
+
+   /**
+    * Loads the controller function for the route.
+    * - If a controller is already provided, it does nothing.
+    * - Otherwise, attempts to load the controller from the controllers directory based on the route path.
+    * - If the controller file does not exist or does not export a function, sets a default empty function as the controller.
+    */
+   loadController() {
+      const controllersDir = path.resolve(__dirname, '../controllers');
+      const filePath = this.path === '/' ? '/index.controller.js' : this.path + '.controller.js';
+      const controllerFilePath = path.join(controllersDir, filePath.replace(/^[/]+|:/g, ''));
+
+      if (this.controller) {
+         return;
+      }
+
+      if (fs.existsSync(controllerFilePath)) {
+         const controller = require(controllerFilePath);
+
+         if (typeof controller !== 'function') {
+            this.controller = () => {};
+         } else {
+            this.controller = controller;
+         }
+      } else {
+         this.controller = () => {};
       }
    }
 }
