@@ -87,7 +87,7 @@ class APIServer {
 
          if (stat.isDirectory()) {
             this.findRouteFiles(filePath, fileList);
-         } else if (file.endsWith('.js')) {
+         } else if (file.endsWith('.route.js')) {
             fileList.push(filePath);
          }
       });
