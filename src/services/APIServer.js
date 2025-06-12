@@ -48,7 +48,12 @@ class APIServer {
     * @param {Route} route - The route instance to register.
     */
    setRoute(route) {
+      const isExist = this.routes.get(route.path);
       if (!(route instanceof Route) || this.routes.get(route.path)) {
+         if (isExist) {
+            console.warn(`Route "${isExist.path}" already exist! Only the first one will be active.`);
+         }
+
          return;
       }
 
