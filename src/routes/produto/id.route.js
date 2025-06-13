@@ -1,6 +1,6 @@
 const Route = require('../../services/Route');
 
 module.exports = new Route({
-   path: '/product/:id',
+   path: '/produto/:id',
    method: 'GET'
 });
