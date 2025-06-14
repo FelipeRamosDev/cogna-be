@@ -2,7 +2,7 @@
  * Base class for database services.
  *
  * This class defines the interface and common properties for SQL and NoSQL databases.
- * CRUD and schema methods must be implemented in specific subclasses (e.g., PostgressDB, MongoDB).
+ * CRUD and schema methods must be implemented in specific subclasses (e.g., PostgresDB, MongoDB).
  *
  * @class DataBase
  */
