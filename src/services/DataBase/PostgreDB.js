@@ -87,10 +87,18 @@ class PostgresDB extends DataBase {
     * @returns {array} - Array of values.
     */
    getConditionValues(conditions = {}) {
-      return Object.keys(conditions).map((key) => {
-         const props = conditions[key];
-         return props.value;
-      });
+      if (Array.isArray(conditions)) {
+         // Array of OR conditions: each entry is [key, { value, operator }]
+         return conditions.map(([_, props]) => props.value);
+      } else if (typeof conditions === 'object' && conditions !== null) {
+         // Object of AND conditions: { key: { value, operator } }
+         return Object.keys(conditions).map((key) => {
+            const props = conditions[key];
+            return props.value;
+         });
+      } else {
+         return [];
+      }
    }
 
    /**
