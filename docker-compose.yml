@@ -1,0 +1,10 @@
+services:
+  cogna-be:
+    build: .
+    container_name: cogna-be
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - SERVER_PORT=8000
+    restart: unless-stopped

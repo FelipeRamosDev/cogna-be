@@ -1,25 +1,39 @@
 # Cogna - Teste Tecnico - Backend
 O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidade e escalabilidade. As rotas e controllers são carregados automaticamente, permitindo fácil manutenção e expansão. A arquitetura separa claramente as responsabilidades, e a inicialização do servidor é centralizada na classe `APIServer`, que gerencia todo o ciclo de vida da aplicação.
 
-## Instalação sem Docker
-Para rodar o projeto sem Docker, siga os passos abaixo:
-1. Clone o repositório:
+## Instalação com Docker
+1. Certifique-se de ter o Docker instalado em sua máquina.
+2. Rode o seguinte comando para criar uma rede Docker e iniciar o container do backend, caso você já tenha criado a rede, pode pular este passo:
    ```bash
-   git clone https://github.com/FelipeRamosDev/cogna-be.git
-   cd cogna-be
+   docker network create cogna-net
    ```
-2. Instale as dependências:
+3. Rode o seguinte comando para iniciar o container do backend:
    ```bash
-   npm install
+   docker run -d --name cogna-be --network cogna-net -p 8000:8000 feliperamosdevelop/cogna-be:latest
    ```
-3. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis de ambiente, se a variável `PORT` não estiver definida, a porta padrão será 8000:
-   ```env
-   PORT=<PORT>
-   ```
-4. Inicie o servidor:
-   ```bash
-   npm start
-   ```
+
+   <details>
+   <summary><strong>Instalação sem Docker</strong></summary>
+
+   Para rodar o projeto sem Docker, siga os passos abaixo:
+   1. Clone o repositório:
+      ```bash
+      git clone https://github.com/FelipeRamosDev/cogna-be.git
+      cd cogna-be
+      ```
+   2. Instale as dependências:
+      ```bash
+      npm install
+      ```
+   3. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis de ambiente, se a variável `PORT` não estiver definida, a porta padrão será 8000:
+      ```env
+      PORT=<PORT>
+      ```
+   4. Inicie o servidor:
+      ```bash
+      npm start
+      ```
+   </details>
 
 ## Principais decisões técnicas
 - Utilização de carregamento automático (auto-loading) para rotas e controllers, facilitando a escalabilidade e manutenção do projeto.
