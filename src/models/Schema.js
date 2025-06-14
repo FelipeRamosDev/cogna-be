@@ -10,8 +10,12 @@ const Table = require('./Table');
  * @param {Table[]} setup.tables - The tables in the schema.
  */
 class Schema {
-   constructor (setup) {
+   constructor(setup) {
       const { name, tables = [] } = setup;
+
+      if (!name || typeof name !== 'string') {
+         throw new Error("Schema constructor requires a valid 'name' property of type string.");
+      }
 
       this.name = name;
       this.tables = tables.map(table => new Table(table));
