@@ -19,21 +19,45 @@ class APIServer {
     * @param {number} [setup.port=8000] - The port number for the server to listen on.
     * @param {Function[]} [setup.middlewares=[]] - Server middlewares.
     * @param {Function} [setup.onListen=() => {}] - Callback function to execute when the server starts listening.
+    * @param {object} [setup.database] - An instance of a database service (e.g., PostgresDB, MongoDB) to be used by the server.
+    * @param {'postgres' | 'mongodb'} [setup.database.type] - The type of database (e.g., 'postgres', 'mongodb').
+    * @param {string} [setup.database.dbName] - The name of the database to connect to.
+    * @param {string} [setup.database.host='localhost'] - The host of the database server.
+    * @param {number} [setup.database.port=5432] - The port of the database server.
+    * @param {string} [setup.database.password=''] - The password for the database connection.
+    * @param {string} [setup.database.user] - The user for the database connection.
     */
    constructor (setup = {}) {
       const {
          host = '0.0.0.0',
          port = 8000,
          middlewares = [],
-         onListen = () => {}
+         onListen = () => {},
+         database,
       } = setup;
 
       this.app = express();
+      this.database = database;
+
       this.host = host;
       this.port = port;
       this.middlewares = middlewares;
       this.onListen = onListen;
       this.routes = new Map();
+
+      if (this.database) {
+         switch (this.database.type) {
+            case 'postgres':
+               const PostgresDB = require('./DataBase/PostgreDB');
+               this.database = new PostgresDB(this.database);
+               break;
+            case 'mongodb':
+               // MongoDB is not implemented yet
+               break;
+            default:
+               console.warn('Unknown database type or database instance is not provided.');
+         }
+      }
    }
 
    /**
