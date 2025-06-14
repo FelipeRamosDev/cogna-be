@@ -15,18 +15,21 @@ class APIServer {
    /**
     * Constructs a new APIServer instance.
     * @param {Object} setup - Configuration object.
+    * @param {string} [setup.host='0.0.0.0'] - The host for the server to listen on.
     * @param {number} [setup.port=8000] - The port number for the server to listen on.
     * @param {Function[]} [setup.middlewares=[]] - Server middlewares.
     * @param {Function} [setup.onListen=() => {}] - Callback function to execute when the server starts listening.
     */
    constructor (setup = {}) {
       const {
+         host = '0.0.0.0',
          port = 8000,
          middlewares = [],
          onListen = () => {}
       } = setup;
 
       this.app = express();
+      this.host = host;
       this.port = port;
       this.middlewares = middlewares;
       this.onListen = onListen;
@@ -40,7 +43,7 @@ class APIServer {
       this.middlewares.map(middleware => this.app.use(middleware));
       
       this.loadRoutes();
-      this.app.listen(this.port, this.onListen);
+      this.app.listen(this.port, this.host, this.onListen);
    }
 
    /**
