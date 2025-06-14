@@ -40,7 +40,7 @@ class APIServer {
       this.middlewares.map(middleware => this.app.use(middleware));
       
       this.loadRoutes();
-      this.app.listen(this.port, this.onListen);
+      this.app.listen(this.port, '0.0.0.0', this.onListen);
    }
 
    /**
