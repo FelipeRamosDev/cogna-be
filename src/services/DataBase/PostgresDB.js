@@ -30,6 +30,8 @@ class PostgresDB extends DataBase {
          password: this.password,
          port: this.port
       });
+
+      this.schemas.map(schema => this.createSchema(schema));
    }
 
    /**
@@ -106,7 +108,9 @@ class PostgresDB extends DataBase {
     * @param {string} schemaName - Name of the schema.
     * @param {Array} tables - Array of table definitions ({ name, fields }).
     */
-   async createSchema(schemaName, tables = []) {
+   async createSchema(schema) {
+      const { name: schemaName, tables = [] } = schema;
+
       try {
          await this.pool.query(`
             CREATE SCHEMA IF NOT EXISTS ${schemaName};

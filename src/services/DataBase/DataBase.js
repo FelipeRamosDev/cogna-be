@@ -19,12 +19,14 @@ class DataBase {
       const {
          dbName = 'default-db',
          host = '0.0.0.0',
-         password = ''
+         password = '',
+         schemas = []
       } = setup;
 
       this.dbName = dbName;
       this.host = host;
       this.password = password;
+      this.schemas = schemas;
       this.pool = null;
    }
 
