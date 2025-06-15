@@ -7,9 +7,23 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
    ```bash
    docker network create cogna-net
    ```
-3. Rode o seguinte comando para iniciar o container do backend:
+3. Rode o seguinte comando para iniciar o container do Postgres:
    ```bash
-   docker run -d --name cogna-be --network cogna-net -p 8000:8000 feliperamosdevelop/cogna-be:latest
+   docker run -d \
+      --name postgres \
+      --network cogna-net \
+      --env-file .env \
+      -p 5432:5432 \
+      postgres:15
+   ```
+4. Rode o seguinte comando para iniciar o container do backend:
+   ```bash
+   docker run -d \
+      --name cogna-be \
+      --network cogna-net \
+      --env-file .env \
+      -p 8000:8000 \
+      feliperamosdevelop/cogna-be:latest
    ```
 
    <details>
