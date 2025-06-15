@@ -1,6 +1,8 @@
 const fs = require('fs');
 
 module.exports = function (req, res) {
+   const db = this.getDataBase();
+
    if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
    }
@@ -12,7 +14,6 @@ module.exports = function (req, res) {
 
       try {
          const products = JSON.parse(data);
-         const db = this.getDataBase();
 
          for (const product of products) {
             await db.create('products_schema.products', product);
