@@ -112,19 +112,14 @@ class PostgresDB extends DataBase {
       const { name: schemaName, tables = [] } = schema;
 
       try {
-         await this.pool.query(`
-            CREATE SCHEMA IF NOT EXISTS ${schemaName};
-         `);
+         await this.pool.query(schema.buildCreateSchemaQuery());
       } catch (error) {
          this.toError('Error creating schema: ' + error.message);
          return;
       }
 
       try {
-         tables.map(table => {
-            const { name, fields } = table;
-            return this.createTable(schemaName, name, fields);
-         });
+         tables.map(table => this.createTable(schemaName, table));
       } catch (error) {
          this.toError('Error creating tables: ' + error.message);
       }
@@ -136,18 +131,14 @@ class PostgresDB extends DataBase {
     * @param {string} tableName - Table name.
     * @param {Array} columns - Array of column definitions ({ name, type }).
     */
-   async createTable(schema, tableName, columns) {
-      try {
-         await this.pool.query(`
-            CREATE TABLE IF NOT EXISTS ${schema}.${tableName} (
-               ${columns.map(col => `${col.name} ${col.type}`).join(', ')}
-            );
-         `);
+   async createTable(schemaName, table) {
+      const querySQL = table.buildCreateTableQuery(schemaName);
 
-         await this.syncTable(tableName, schema, columns);
-      } catch (error) {
-         this.toError(`Error creating table ${tableName} in schema ${schema}: ${error.message}`);
-         return;
+      try {
+         await this.pool.query(querySQL);
+         await this.syncTable(table.name, schemaName, table.fields);
+      } catch (error) {;
+         return this.toError(`Error creating table ${table.name} in schema ${schemaName}: ${error.message}`);
 
       }
    }
@@ -307,6 +298,7 @@ class PostgresDB extends DataBase {
          };
       } else {
          return {
+            code,
             error: true,
             message: error.message || 'An unknown error occurred!',
          };
