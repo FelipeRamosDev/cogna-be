@@ -48,7 +48,7 @@ class APIServer {
       if (this.database) {
          switch (this.database.type) {
             case 'postgres':
-               const PostgresDB = require('./DataBase/PostgreDB');
+               const PostgresDB = require('./DataBase/PostgresDB');
                this.database = new PostgresDB(this.database);
                break;
             case 'mongodb':
@@ -64,17 +64,20 @@ class APIServer {
     * Initializes the API server by loading routes and starting the Express app.
     */
    init() {
+      this.app.use(express.json());
       this.middlewares.map(middleware => this.app.use(middleware));
       
       this.loadRoutes();
       this.app.listen(this.port, this.host, this.onListen);
+
+      return this;
    }
 
    /**
     * Registers a route with the server if it is a valid Route instance and not already registered.
     * @param {Route} route - The route instance to register.
     */
-   setRoute(route) {
+   setRoute(route, apiServer) {
       const isExist = this.routes.get(route.path);
       if (!(route instanceof Route) || this.routes.get(route.path)) {
          if (isExist) {
@@ -84,6 +87,7 @@ class APIServer {
          return;
       }
 
+      route.setApiServer(apiServer);
       this.routes.set(route.path, route);
       this.app.use(route.router);
    }
@@ -97,7 +101,7 @@ class APIServer {
 
       jsFiles.forEach(filePath => {
          const route = require(filePath);
-         this.setRoute(route);
+         this.setRoute(route, this);
       });
    }
 

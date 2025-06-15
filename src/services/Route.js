@@ -19,7 +19,7 @@ class Route {
     * @param {Function} setup.controller - The route handler/controller function.
     *
     */
-   constructor (setup = {}) {
+   constructor (setup = {}, apiServer) {
       const {
          path,
          method,
@@ -27,6 +27,7 @@ class Route {
          middlewares = []
       } = setup;
 
+      this.setApiServer(apiServer);
       this.router = express.Router();
       this.validateConfigs(setup);
 
@@ -37,6 +38,14 @@ class Route {
 
       this.loadController();
       this.setRoute();
+   }
+
+   get apiServer() {
+      return this._apiServer();
+   }
+
+   setApiServer(apiServer) {
+      this._apiServer = () => apiServer;
    }
 
    /**
@@ -89,7 +98,10 @@ class Route {
          if (typeof controller !== 'function') {
             this.controller = () => {};
          } else {
-            this.controller = controller;
+            this.controller = controller.bind({
+               getAPI: () => this.apiServer,
+               getDataBase: () => this.apiServer?.database,
+            });
          }
       } else {
          this.controller = () => {};

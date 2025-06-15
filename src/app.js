@@ -1,5 +1,5 @@
 const APIServer = require('./services/APIServer');
-const user_schema = require('./schemas/user_schema');
+const users_schema = require('./schemas/users_schema');
 const product_schema = require('./schemas/products_schema');
 
 const apiServer = new APIServer({
@@ -12,7 +12,7 @@ const apiServer = new APIServer({
       host: process.env.DB_HOST,
       password: process.env.DB_PASSWORD,
       schemas: [
-         user_schema,
+         users_schema,
          product_schema
       ],
    }

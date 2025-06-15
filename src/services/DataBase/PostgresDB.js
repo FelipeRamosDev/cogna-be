@@ -116,7 +116,7 @@ class PostgresDB extends DataBase {
             CREATE SCHEMA IF NOT EXISTS ${schemaName};
          `);
       } catch (error) {
-         console.error('Error creating schema:', error);
+         this.toError('Error creating schema: ' + error.message);
          return;
       }
 
@@ -126,7 +126,7 @@ class PostgresDB extends DataBase {
             return this.createTable(schemaName, name, fields);
          });
       } catch (error) {
-         console.error('Error creating tables:', error);
+         this.toError('Error creating tables: ' + error.message);
       }
    }
 
@@ -146,7 +146,7 @@ class PostgresDB extends DataBase {
 
          await this.syncTable(tableName, schema, columns);
       } catch (error) {
-         console.error(`Error creating table ${tableName} in schema ${schema}:`, error);
+         this.toError(`Error creating table ${tableName} in schema ${schema}: ${error.message}`);
          return;
 
       }
@@ -183,7 +183,7 @@ class PostgresDB extends DataBase {
 
       for (const col of currentColumns) {
          if (!columnsConfig.find(c => c.name === col.column_name)) {
-            await pool.query(
+            await this.pool.query(
                `ALTER TABLE ${schemaName}.${tableName} DROP COLUMN ${col.column_name}`
             );
          }
@@ -197,6 +197,10 @@ class PostgresDB extends DataBase {
     * @returns {Promise<object>} - The inserted record.
     */
    async create(tableName, data) {
+      if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+         throw this.toError('Invalid data provided for insert.');
+      }
+
       const columns = Object.keys(data);
       const values = Object.values(data);
       const placeholders = columns.map((_, index) => `$${index + 1}`).join(', ');
@@ -211,7 +215,7 @@ class PostgresDB extends DataBase {
          const result = await this.pool.query(query, values);
          return result.rows[0];
       } catch (error) {
-         console.error('Error creating record on database:', error);
+         return this.toError(error);
       }
    }
 
@@ -235,7 +239,7 @@ class PostgresDB extends DataBase {
 
          return result.rows;
       } catch (error) {
-         console.error('Error reading records from database:', error);
+         this.toError('Error reading records from database: ' + error.message);
          return [];
       }
    }
@@ -275,7 +279,7 @@ class PostgresDB extends DataBase {
    async delete(tableName, conditions) {
       const whereClause = this.buildWhere(conditions);
       if (!whereClause) {
-         console.error('No conditions provided for delete.');
+         this.toError('No conditions provided for delete.');
          return;
       }
 
@@ -290,9 +294,23 @@ class PostgresDB extends DataBase {
          const result = await this.pool.query(query, values);
          return result.rows;
       } catch (error) {
-         console.error('Error deleting record from database:', error);
+         this.toError('Error deleting record from database: ' + error.message);
       }
+   }
 
+   toError(error, code = 500) {
+      if (typeof error === 'string') {
+         return {
+            code,
+            error: true,
+            message: error,
+         };
+      } else {
+         return {
+            error: true,
+            message: error.message || 'An unknown error occurred!',
+         };
+      }
    }
 }
 

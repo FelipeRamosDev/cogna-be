@@ -4,7 +4,7 @@
  *
  * @class Field
  * @param {Object} setup - The setup object for the field.
- * @param {string} setup.key - The name of the field.
+ * @param {string} setup.name - The name of the field.
  * @param {string} setup.type - The data type of the field.
  * @param {*} [setup.defaultValue=null] - The default value for the field.
  * @param {boolean} [setup.allowNull=true] - Whether the field can be null.
@@ -16,7 +16,7 @@
 class Field {
    constructor(setup = {}) {
       const {
-         key,
+         name,
          type,
          allowNull,
          unique,
@@ -25,7 +25,7 @@ class Field {
          defaultValue = null,
       } = setup;
 
-      if (!key || typeof key !== 'string') {
+      if (!name || typeof name !== 'string') {
          throw new Error('Field name is required');
       }
 
@@ -33,7 +33,7 @@ class Field {
          throw new Error('Field type is required');
       }
 
-      this.key = key;
+      this.name = name;
       this.type = type;
       this.defaultValue = defaultValue;
       this.allowNull = Boolean(allowNull);
