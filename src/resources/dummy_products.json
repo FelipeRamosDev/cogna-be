@@ -1,82 +1,72 @@
 [
    {
-      "id": 1,
-      "name": "Wireless Mouse",
-      "description": "Ergonomic wireless mouse with adjustable DPI.",
+      "name": "Mouse Sem Fio",
+      "description": "O Mouse Sem Fio foi projetado para proporcionar conforto e eficiência durante longas horas de uso, seja em ambientes profissionais ou domésticos. Com um design ergonômico que se adapta perfeitamente à mão, ele reduz a fadiga e oferece uma experiência de navegação suave e precisa. O ajuste de DPI permite alternar facilmente entre diferentes níveis de sensibilidade, tornando-o ideal tanto para tarefas que exigem precisão, como edição de imagens, quanto para navegação casual na internet. Sua conexão sem fio utiliza tecnologia de ponta para garantir estabilidade e resposta rápida, eliminando atrasos e interferências. A bateria de longa duração permite semanas de uso contínuo sem a necessidade de recarga frequente, e o receptor USB compacto pode ser armazenado dentro do próprio mouse, facilitando o transporte. Além disso, o mouse possui botões silenciosos, ideais para ambientes compartilhados, e um acabamento resistente a manchas e arranhões, garantindo durabilidade mesmo com uso intenso. Compatível com diversos sistemas operacionais, incluindo Windows, macOS e Linux, o Mouse Sem Fio é a escolha perfeita para quem busca praticidade, conforto e desempenho em um único produto. Seja para trabalho, estudo ou lazer, ele se adapta às suas necessidades e oferece uma experiência superior em todas as situações.",
       "price": 25.99,
-      "category": "Electronics",
-      "inStock": true
+      "category": "Eletrônicos",
+      "stock_quantity": 51
    },
    {
-      "id": 2,
-      "name": "Bluetooth Headphones",
-      "description": "Noise-cancelling over-ear headphones.",
+      "name": "Fone de Ouvido Bluetooth",
+      "description": "O Fone de Ouvido Bluetooth oferece uma experiência sonora imersiva, combinando tecnologia de cancelamento de ruído com conforto excepcional. Desenvolvido para quem valoriza qualidade de áudio, ele proporciona graves potentes, médios equilibrados e agudos cristalinos, tornando cada música, podcast ou chamada uma experiência única. O design over-ear envolve completamente as orelhas, bloqueando ruídos externos e permitindo concentração total, seja em ambientes movimentados ou silenciosos. A bateria de longa duração garante até 30 horas de reprodução contínua, e o carregamento rápido permite horas de uso com poucos minutos na tomada. Os controles intuitivos nas laterais facilitam o ajuste de volume, troca de faixas e atendimento de chamadas sem precisar acessar o dispositivo. O microfone embutido com tecnologia de redução de ruído assegura chamadas claras e sem interferências. O fone é dobrável e leve, ideal para transportar em viagens ou no dia a dia. Compatível com smartphones, tablets, notebooks e outros dispositivos Bluetooth, ele também pode ser utilizado com cabo auxiliar incluso, garantindo versatilidade em qualquer situação. O acabamento premium e as almofadas macias proporcionam conforto mesmo após horas de uso. Seja para trabalho, lazer ou prática esportiva, o Fone de Ouvido Bluetooth é a escolha ideal para quem busca qualidade, praticidade e estilo.",
       "price": 59.99,
-      "category": "Electronics",
-      "inStock": true
+      "category": "Eletrônicos",
+      "stock_quantity": 12
    },
    {
-      "id": 3,
-      "name": "Coffee Mug",
-      "description": "Ceramic mug with 350ml capacity.",
+      "name": "Caneca de Café",
+      "description": "A Caneca de Café de cerâmica com capacidade para 350ml é perfeita para quem aprecia uma boa bebida quente em qualquer momento do dia. Seu material de alta qualidade mantém a temperatura da bebida por mais tempo, seja café, chá ou chocolate quente. O design clássico e elegante combina com qualquer ambiente, desde escritórios até cozinhas residenciais. A alça ergonômica proporciona conforto ao segurar, mesmo com líquidos quentes, e o acabamento esmaltado facilita a limpeza, evitando manchas e odores. Resistente a micro-ondas e lava-louças, a caneca é prática para o dia a dia e ideal para quem busca conveniência sem abrir mão do estilo. Além disso, sua robustez garante durabilidade, suportando quedas leves e uso frequente. A capacidade generosa permite saborear grandes porções de sua bebida favorita, tornando-a ideal para reuniões, cafés da manhã ou momentos de relaxamento. Seja para uso próprio ou como presente, a Caneca de Café é uma escolha versátil e funcional, que agrada a todos os gostos e estilos.",
       "price": 8.5,
-      "category": "Kitchen",
-      "inStock": true
+      "category": "Cozinha",
+      "stock_quantity": 61
    },
    {
-      "id": 4,
-      "name": "Notebook",
-      "description": "A5 lined notebook with 100 pages.",
+      "name": "Caderno",
+      "description": "O Caderno pautado tamanho A5 com 100 páginas é o companheiro ideal para estudantes, profissionais e criativos. Suas folhas de alta gramatura evitam que a tinta atravesse, permitindo o uso de diferentes tipos de canetas e marcadores. O formato compacto facilita o transporte em bolsas e mochilas, tornando-o perfeito para anotações rápidas, registros de ideias, planejamento de tarefas ou estudos. A capa resistente protege o conteúdo contra danos, enquanto o espiral de qualidade garante fácil manuseio e abertura total das páginas. O design moderno e discreto se adapta a qualquer ambiente, seja na escola, no escritório ou em casa. Além disso, o caderno é produzido com papel de fontes renováveis, contribuindo para a sustentabilidade. Com 100 páginas, oferece espaço suficiente para um semestre de aulas, projetos ou diários pessoais. Seja para organizar a rotina, registrar pensamentos ou desenvolver projetos criativos, o Caderno A5 é uma ferramenta indispensável para quem valoriza organização e praticidade.",
       "price": 4.99,
-      "category": "Stationery",
-      "inStock": true
+      "category": "Papelaria",
+      "stock_quantity": 78
    },
    {
-      "id": 5,
-      "name": "Desk Lamp",
-      "description": "LED desk lamp with adjustable brightness.",
+      "name": "Luminária de Mesa",
+      "description": "A Luminária de Mesa LED com brilho ajustável é a solução perfeita para quem busca iluminação eficiente e personalizada em ambientes de estudo ou trabalho. Seu design moderno e compacto ocupa pouco espaço na mesa, enquanto o braço articulado permite direcionar a luz conforme a necessidade. O sistema de ajuste de intensidade possibilita escolher entre luz suave para relaxamento ou luz forte para leitura e tarefas detalhadas. A tecnologia LED garante baixo consumo de energia e longa vida útil, além de não aquecer o ambiente. A base antiderrapante proporciona estabilidade, evitando quedas acidentais. O acabamento fosco e as linhas elegantes combinam com qualquer decoração, tornando a luminária um item funcional e decorativo. Fácil de instalar e operar, ela pode ser utilizada em escritórios, quartos, salas de estudo ou ateliês. Ideal para estudantes, profissionais ou qualquer pessoa que precise de uma fonte de luz confiável e versátil, a Luminária de Mesa LED transforma qualquer espaço em um ambiente mais produtivo e confortável.",
       "price": 19.99,
-      "category": "Home",
-      "inStock": false
+      "category": "Casa",
+      "stock_quantity": 42
    },
    {
-      "id": 6,
-      "name": "Water Bottle",
-      "description": "Stainless steel insulated water bottle.",
+      "name": "Garrafa de Água",
+      "description": "A Garrafa de Água térmica de aço inoxidável é indispensável para quem valoriza hidratação e praticidade no dia a dia. Com isolamento a vácuo, mantém a temperatura da bebida por horas, seja gelada ou quente. O material resistente garante durabilidade e não transfere sabor ou odor para o líquido. A tampa à prova de vazamentos permite transportar a garrafa em bolsas ou mochilas sem preocupações. O design elegante e ergonômico facilita o manuseio, enquanto a boca larga permite adicionar gelo ou facilitar a limpeza. Ideal para atividades ao ar livre, academia, trabalho ou viagens, a garrafa é leve e fácil de transportar. Além disso, contribui para a redução do uso de plásticos descartáveis, sendo uma escolha sustentável. Com capacidade adequada para o consumo diário, a Garrafa de Água é o acessório perfeito para quem busca saúde, praticidade e respeito ao meio ambiente.",
       "price": 15.0,
-      "category": "Outdoors",
-      "inStock": true
+      "category": "Ao Ar Livre",
+      "stock_quantity": 16
    },
    {
-      "id": 7,
-      "name": "USB-C Cable",
-      "description": "1m USB-C to USB-A charging cable.",
+      "name": "Cabo USB-C",
+      "description": "O Cabo USB-C para USB-A de 1 metro é essencial para quem precisa de carregamento rápido e transferência de dados eficiente. Compatível com uma ampla variedade de dispositivos, como smartphones, tablets, notebooks e acessórios, ele oferece versatilidade e praticidade no dia a dia. O revestimento reforçado garante resistência a dobras e torções, aumentando a durabilidade mesmo com uso intenso. Os conectores de alta qualidade asseguram conexão estável e segura, evitando falhas durante o carregamento ou sincronização de dados. O comprimento de 1 metro é ideal para uso em casa, no escritório ou em viagens, proporcionando liberdade de movimento sem excesso de fio. O cabo suporta carregamento rápido e transferência de dados em alta velocidade, otimizando o tempo e a eficiência. Seja para recarregar dispositivos ou transferir arquivos, o Cabo USB-C é um acessório indispensável para quem busca desempenho e confiabilidade.",
       "price": 6.99,
-      "category": "Electronics",
-      "inStock": true
+      "category": "Eletrônicos",
+      "stock_quantity": 100
    },
    {
-      "id": 8,
-      "name": "Yoga Mat",
-      "description": "Non-slip yoga mat, 6mm thick.",
+      "name": "Tapete de Yoga",
+      "description": "O Tapete de Yoga antiderrapante com 6mm de espessura foi desenvolvido para oferecer conforto e segurança durante a prática de exercícios físicos. Sua superfície texturizada impede escorregões, proporcionando estabilidade em posturas avançadas ou movimentos intensos. A espessura de 6mm garante amortecimento adequado para proteger as articulações, tornando o tapete ideal para yoga, pilates, alongamentos e treinos funcionais. Leve e fácil de enrolar, pode ser transportado para academias, parques ou viagens sem dificuldade. O material de alta qualidade é resistente ao desgaste e fácil de limpar, garantindo higiene e durabilidade. Disponível em cores vibrantes, o tapete também contribui para a motivação durante os exercícios. Seja para iniciantes ou praticantes avançados, o Tapete de Yoga é um aliado indispensável para uma rotina saudável e confortável.",
       "price": 22.5,
       "category": "Fitness",
-      "inStock": false
+      "stock_quantity": 50
    },
    {
-      "id": 9,
-      "name": "Ballpoint Pens",
-      "description": "Pack of 10 blue ink ballpoint pens.",
+      "name": "Canetas Esferográficas",
+      "description": "O pacote com 10 Canetas Esferográficas de tinta azul é ideal para estudantes, profissionais e qualquer pessoa que precisa de escrita suave e confiável. As canetas possuem corpo ergonômico que proporciona conforto mesmo após longos períodos de uso. A ponta média garante traços precisos e uniformes, enquanto a tinta de secagem rápida evita borrões e manchas. O sistema de fluxo contínuo assegura escrita sem falhas, tornando as canetas perfeitas para anotações, redações, assinaturas e desenhos. O design simples e funcional facilita o transporte em estojos, bolsas ou mochilas. Além disso, o pacote econômico oferece excelente custo-benefício, garantindo que você sempre tenha uma caneta à mão quando precisar. Seja na escola, no escritório ou em casa, as Canetas Esferográficas são uma escolha prática e eficiente para o dia a dia.",
       "price": 3.49,
-      "category": "Stationery",
-      "inStock": true
+      "category": "Papelaria",
+      "stock_quantity": 18
    },
    {
-      "id": 10,
-      "name": "Portable Charger",
-      "description": "10000mAh portable power bank.",
+      "name": "Carregador Portátil",
+      "description": "O Carregador Portátil de 10000mAh é a solução ideal para quem precisa manter seus dispositivos carregados durante todo o dia. Compacto e leve, cabe facilmente em bolsas ou mochilas, sendo perfeito para viagens, passeios ou uso diário. Com alta capacidade, permite recarregar smartphones, tablets, fones de ouvido e outros dispositivos múltiplas vezes sem a necessidade de uma tomada. O sistema de proteção inteligente evita sobrecarga, superaquecimento e curto-circuito, garantindo segurança durante o uso. Possui múltiplas portas de saída, permitindo carregar mais de um dispositivo simultaneamente. O indicador LED mostra o nível de bateria restante, facilitando o controle de uso. Compatível com diversos modelos de dispositivos, o carregador portátil é indispensável para quem busca praticidade, autonomia e tranquilidade em qualquer situação. Nunca mais fique sem bateria nos momentos mais importantes com o Carregador Portátil de 10000mAh.",
       "price": 29.99,
-      "category": "Electronics",
-      "inStock": true
+      "category": "Eletrônicos",
+      "stock_quantity": 30
    }
 ]
