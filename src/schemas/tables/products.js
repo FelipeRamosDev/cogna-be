@@ -9,7 +9,7 @@ const products = new Table({
       { name: 'description', type: 'TEXT' },
       { name: 'price', type: 'DECIMAL(10, 2)', notNull: true },
       { name: 'stock_quantity', type: 'INTEGER', defaultValue: 0 },
-      { name: 'category_name', type: 'VARCHAR(255)', defaultValue: 'General' },
+      { name: 'category', type: 'VARCHAR(255)', defaultValue: 'General' },
    ]
 });
 
