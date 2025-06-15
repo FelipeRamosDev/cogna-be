@@ -1,0 +1,29 @@
+const fs = require('fs');
+
+module.exports = function (req, res) {
+   const db = this.getDataBase();
+
+   if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+   }
+
+   fs.readFile(req.file.path, 'utf8', async (err, data) => {
+      if (err) {
+         return res.status(500).json({ error: 'Error reading file' });
+      }
+
+      try {
+         const products = JSON.parse(data);
+
+         for (const product of products) {
+            await db.create('products_schema.products', product);
+         }
+
+         res.status(201).send({ success: true, products });
+      } catch (e) {
+         res.status(400).json({ error: 'Invalid JSON file' });
+      } finally {
+         fs.unlink(req.file.path, () => { });
+      }
+   });
+}

@@ -7,4 +7,36 @@ services:
     environment:
       - NODE_ENV=production
       - SERVER_PORT=8000
+      - DB_TYPE=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=cogna
+      - DB_USER=postgres
+      - DB_PASSWORD=Felipe!123
+    depends_on:
+      - postgres
+    networks:
+      - default
     restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: cogna
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Felipe!123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - default
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  cogna-be_default:
+    external: true
