@@ -20,6 +20,14 @@ class Schema {
       this.name = name;
       this.tables = tables.map(table => new Table(table));
    }
+
+   buildCreateSchemaQuery() {
+      if (!this.name) {
+         throw new Error('Schema name is required to build the "create schema" query');
+      }
+
+      return `CREATE SCHEMA IF NOT EXISTS ${this.name};`;
+   }
 }
 
 module.exports = Schema;

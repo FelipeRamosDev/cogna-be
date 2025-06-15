@@ -20,6 +20,15 @@ class Table {
       this.name = name;
       this.fields = fields.map(field => new Field(field));
    }
+
+   buildCreateTableQuery(schemaName) {
+      if (!schemaName || !this.name) {
+         throw new Error('Table name and schema name is required to build the "create table" query');
+      }
+
+      const fieldsDefinition = this.fields.map(field => field.buildDefinitionSQL()).join(', ');
+      return `CREATE TABLE IF NOT EXISTS ${schemaName}.${this.name} (${fieldsDefinition});`;
+   }
 }
 
 module.exports = Table;
