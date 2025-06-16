@@ -74,6 +74,15 @@ class APIServer {
    }
 
    /**
+    * Retrieves a registered route by its path.
+    * @param {string} path - The path of the route to retrieve.
+    * @returns {Route|undefined} The Route instance if found, otherwise undefined.
+    */
+   getRoute(path) {
+      return this.routes.get(path);
+   }
+
+   /**
     * Registers a route with the server if it is a valid Route instance and not already registered.
     * @param {Route} route - The route instance to register.
     */
