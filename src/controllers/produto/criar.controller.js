@@ -9,11 +9,13 @@ module.exports = async function(req, res) {
    try {
       const newProduct = await db.create('products_schema.products', productData);
       if (newProduct.error) {
+         console.error('Error creating product:', newProduct);
          return res.status(newProduct.code || 500).send(newProduct);
       }
 
       res.status(201).send({ success: true, created: newProduct });
    } catch (error) {
+      console.error('Error creating product:', error);
       res.status(error.code || 500).send(error);
    }
 }
