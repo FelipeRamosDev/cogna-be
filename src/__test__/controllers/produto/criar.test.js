@@ -1,11 +1,13 @@
 const request = require('supertest');
 
 describe('PUT /produto/criar', () => {
-   let apiServer;
-
-   beforeAll(() => {
+   let apiServer
+   
+   beforeAll(async () => {
       apiServer = require('../../../app');
-   });
+      
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for server to start
+   }, 30000);
 
    it('should create a product successfully with valid data', async () => {
       const newProduct = {
@@ -14,15 +16,13 @@ describe('PUT /produto/criar', () => {
          price: 100
       };
 
-      await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait for server to start
-
       const response = await request(apiServer.app)
          .put('/produto/criar')
          .send(newProduct);
 
       expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
-   }, 20000);
+   });
 
    it('should return 400 if data is missing', async () => {
       const response = await request(apiServer.app)

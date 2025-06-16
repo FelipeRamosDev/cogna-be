@@ -17,6 +17,21 @@ const apiServer = new APIServer({
          users_schema,
          product_schema
       ],
+      onReady: async (database) => {
+         try {
+            const products = await database.read('products_schema.products', {});
+
+            if (!products.length) {
+               const dummyProducts = require('./resources/dummy_products.json');
+               
+               for (const product of dummyProducts) {
+                  await database.create('products_schema.products', product);
+               }
+            }
+         } catch (error) {
+            console.error('Error during database initialization:', error);
+         }
+      }
    }
 });
 

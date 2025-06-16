@@ -13,6 +13,7 @@ class DataBase {
     * @param {string} [setup.dbName='default-db'] - Database name.
     * @param {string} [setup.host='0.0.0.0'] - Database host.
     * @param {string} [setup.password=''] - Database password.
+    * @param {Function} [setup.onReady] - Callback function to execute when the connection is ready.
     *
     */
    constructor(setup = {}) {
@@ -20,13 +21,15 @@ class DataBase {
          dbName = 'default-db',
          host = '0.0.0.0',
          password = '',
-         schemas = []
+         schemas = [],
+         onReady = () => {}
       } = setup;
 
       this.dbName = dbName;
       this.host = host;
       this.password = password;
       this.schemas = schemas;
+      this.onReady = onReady;
       this.pool = null;
    }
 
