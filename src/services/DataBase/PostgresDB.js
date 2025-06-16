@@ -206,6 +206,11 @@ class PostgresDB extends DataBase {
          const result = await this.pool.query(query, values);
          return result.rows[0];
       } catch (error) {
+         if (error.code === '22P02') { // Invalid text representation
+            error.code = 400; // Bad Request
+            return this.toError(error);
+         }
+
          return this.toError(error);
       }
    }
@@ -298,7 +303,7 @@ class PostgresDB extends DataBase {
          };
       } else {
          return {
-            code,
+            code: error.code || code,
             error: true,
             message: error.message || 'An unknown error occurred!',
          };

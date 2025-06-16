@@ -6,6 +6,12 @@
          "name": "Run dev",
          "request": "launch",
          "type": "node-terminal"
+      },
+      {
+         "command": "npm run test",
+         "name": "Run tests",
+         "request": "launch",
+         "type": "node-terminal"
       }
    ]
 }
