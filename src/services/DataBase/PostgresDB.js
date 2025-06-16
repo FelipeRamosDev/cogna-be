@@ -206,7 +206,7 @@ class PostgresDB extends DataBase {
          const result = await this.pool.query(query, values);
          return result.rows[0];
       } catch (error) {
-         if (error.message.includes('sintaxe de entrada é inválida para')) { // Invalid text representation
+         if (error.code === '22P02') { // Invalid text representation
             error.code = 400; // Bad Request
             return this.toError(error);
          }
