@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const Route = require('./Route');
+const cors = require('cors');
 
 /**
  * APIServer Service
@@ -65,11 +66,12 @@ class APIServer {
     */
    init() {
       this.app.use(express.json());
-      this.middlewares.map(middleware => this.app.use(middleware));
-      
-      this.loadRoutes();
-      this.app.listen(this.port, this.host, this.onListen);
+      this.app.use(cors());
 
+      this.middlewares.map(middleware => this.app.use(middleware));      
+      this.loadRoutes();
+
+      this.app.listen(this.port, this.host, this.onListen);
       return this;
    }
 

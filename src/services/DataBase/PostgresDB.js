@@ -31,7 +31,14 @@ class PostgresDB extends DataBase {
          port: this.port
       });
 
-      this.schemas.map(schema => this.createSchema(schema));
+      this.pool.on('connect', async () => {
+         for (const schema of this.schemas) {
+            this.schemas.push(await this.createSchema(schema));
+         }
+
+         this.onReady(this);
+         console.log('Postgres pool is ready and connected.');
+      });
    }
 
    /**
