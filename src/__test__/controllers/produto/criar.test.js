@@ -1,7 +1,12 @@
 const request = require('supertest');
-const apiServer = require('../../../app');
 
 describe('PUT /produto/criar', () => {
+   let apiServer;
+
+   beforeAll(() => {
+      apiServer = require('../../../app');
+   });
+
    it('should create a product successfully with valid data', async () => {
       const newProduct = {
          name: 'Produto Teste',
