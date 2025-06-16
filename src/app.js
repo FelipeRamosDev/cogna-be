@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const APIServer = require('./services/APIServer');
 const users_schema = require('./schemas/users_schema');
 const product_schema = require('./schemas/products_schema');
@@ -19,3 +21,5 @@ const apiServer = new APIServer({
 });
 
 apiServer.init();
+
+module.exports = apiServer;

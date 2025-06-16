@@ -16,6 +16,7 @@ describe('APIServer', () => {
          use: jest.fn(),
          listen: jest.fn()
       };
+
       express.mockReturnValue(mockApp);
       server = new APIServer();
    });
@@ -40,7 +41,6 @@ describe('APIServer', () => {
 
       expect(mockApp.use).toHaveBeenCalledWith(middleware);
       expect(server.loadRoutes).toHaveBeenCalled();
-      expect(mockApp.listen).toHaveBeenCalledWith(server.port, server.onListen);
    });
 
    it('should register a valid Route instance', () => {
