@@ -10,7 +10,7 @@ services:
       - DB_TYPE=postgres
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=cogna-shop
+      - DB_NAME=cognashop
       - DB_USER=testuser
       - DB_PASSWORD=testpassword
     depends_on:
@@ -23,7 +23,7 @@ services:
     image: postgres:15
     container_name: postgres
     environment:
-      POSTGRES_DB: cogna-shop
+      POSTGRES_DB: cognashop
       POSTGRES_USER: testuser
       POSTGRES_PASSWORD: testpassword
     ports:
