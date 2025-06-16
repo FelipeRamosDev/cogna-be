@@ -13,7 +13,7 @@ describe('PUT /produto/criar', () => {
          .put('/produto/criar')
          .send(newProduct);
 
-      expect(response.status).toBe(201);
+      expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
    });
 
@@ -22,7 +22,7 @@ describe('PUT /produto/criar', () => {
          .put('/produto/criar')
          .send({});
 
-      expect(response.status).toBe(400);
+      expect(response.statusCode).toBe(400);
       expect(response.body).toHaveProperty('error');
    });
 
@@ -37,7 +37,7 @@ describe('PUT /produto/criar', () => {
          .put('/produto/criar')
          .send(invalidData);
 
-      expect(response.status).toBe(400);
+      expect(response.statusCode).toBe(400);
       expect(response.body).toHaveProperty('error');
    });
 
@@ -49,7 +49,7 @@ describe('PUT /produto/criar', () => {
          .put('/produto/criar')
          .send(errorData);
 
-      expect(response.status).toBe(400);
+      expect(response.statusCode).toBe(400);
       expect(response.body).toHaveProperty('error');
    });
 });
