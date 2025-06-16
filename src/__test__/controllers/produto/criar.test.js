@@ -18,7 +18,6 @@ describe('PUT /produto/criar', () => {
          .put('/produto/criar')
          .send(newProduct);
 
-      console.error(response);
       expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
    });

@@ -32,6 +32,7 @@ jobs:
         with:
           node-version: '18'
       - run: npm install
+      - run: sleep 25
       - run: npm test
         env:
           DB_TYPE: postgres
