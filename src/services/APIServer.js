@@ -50,7 +50,9 @@ class APIServer {
          switch (this.database.type) {
             case 'postgres':
                const PostgresDB = require('./DataBase/PostgresDB');
+
                this.database = new PostgresDB(this.database);
+               this.database.init();
                break;
             case 'mongodb':
                // MongoDB is not implemented yet

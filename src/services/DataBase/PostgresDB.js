@@ -30,15 +30,24 @@ class PostgresDB extends DataBase {
          password: this.password,
          port: this.port
       });
+   }
 
-      this.pool.connect().then(async () => {
+   async init() {
+      if (!this.pool || !this.pool.connect) {
+         throw this.toError('Database connection pool is not initialized.');
+      }
+
+      try {
+         await this.pool.connect();
          for (const schema of this.schemas) {
             await this.createSchema(schema)
          }
 
          this.onReady(this);
          console.log('PostgresDB connected successfully');
-      });
+      } catch (error) {
+         throw this.toError('Failed to connect to PostgresDB: ' + error.message);
+      }
    }
 
    /**
