@@ -3,10 +3,8 @@ const request = require('supertest');
 describe('PUT /produto/criar', () => {
    let apiServer;
 
-   beforeAll(async () => {
+   beforeAll(() => {
       apiServer = require('../../../app');
-
-      await new Promise((resolve) => setTimeout(resolve, 10000));
    });
 
    it('should create a product successfully with valid data', async () => {
