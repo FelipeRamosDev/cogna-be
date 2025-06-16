@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+    branches: [ main, develop, 'feature/_COGB-*' ]
   pull_request:
     branches: [ main, develop, 'feature/_COGB-*' ]
 
