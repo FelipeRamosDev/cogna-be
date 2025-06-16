@@ -31,13 +31,13 @@ class PostgresDB extends DataBase {
          port: this.port
       });
 
-      this.pool.on('connect', async () => {
+      this.pool.connect().then(async () => {
          for (const schema of this.schemas) {
-            this.schemas.push(await this.createSchema(schema));
+            await this.createSchema(schema)
          }
 
          this.onReady(this);
-         console.log('Postgres pool is ready and connected.');
+         console.log('PostgresDB connected successfully');
       });
    }
 
@@ -126,7 +126,9 @@ class PostgresDB extends DataBase {
       }
 
       try {
-         tables.map(table => this.createTable(schemaName, table));
+         for (const table of tables) {
+            await this.createTable(schemaName, table);
+         }
       } catch (error) {
          this.toError('Error creating tables: ' + error.message);
       }
