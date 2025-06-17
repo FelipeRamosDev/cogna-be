@@ -1,11 +1,11 @@
 {
   "name": "cogna-be",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node -r dotenv/config src/app.js",
-    "dev": "nodemon -r dotenv/config src/app.js",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
     "test": "npx jest"
   },
   "repository": {
@@ -19,11 +19,15 @@
   },
   "homepage": "https://github.com/FelipeRamosDev/cogna-be#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "multer": "^2.0.1",
+    "pg": "^8.16.0"
   },
   "devDependencies": {
     "jest": "^30.0.0",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.1"
   }
 }

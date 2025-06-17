@@ -137,3 +137,4 @@ dist
 
 # Custom ingored paths
 package-lock.json
+uploads
