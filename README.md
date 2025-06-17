@@ -7,6 +7,8 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
 - [Funcionalidades Implementadas](#funcionalidades-implementadas)
 - [Extras - Diferenciais (Opcionais)](#extras---diferenciais-opcionais)
 - [Descrição técnica.](#descrição-técnica)
+- [Serviços Implementados](#serviços-implementados)
+- [Estrutura do Projeto](#estrutura-do-projeto)
 
 ## Instalação com Docker Compose
 1. Certifique-se de ter o Docker instalado em sua máquina.
@@ -33,9 +35,22 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
       ```bash
       npm install
       ```
-   3. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis de ambiente, se a variável `SERVER_PORT` não estiver definida, a porta padrão será 8000:
+   3. Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis de ambiente, você pode usar o arquivo `.env.example` como base:
       ```env
-      SERVER_PORT=<PORT>
+      SERVER_PORT=8000
+
+      # Database connection configuration
+      DB_TYPE=<your_database_type_here>
+      DB_USER=<your_database_user_here>
+      DB_HOST=<your_database_host_here>
+      DB_NAME=<your_database_name_here>
+      DB_PASSWORD=<your_password_here>
+      DB_PORT=<your_database_port_here>
+
+      # Autentticação PostgreSQL
+      POSTGRES_DB=<your_database_name_here>
+      POSTGRES_USER=<your_database_user_here>
+      POSTGRES_PASSWORD=<your_password_here>
       ```
    4. Inicie o servidor:
       ```bash
@@ -45,7 +60,7 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
 
 
 #### Teste a aplicação na nuvem
-Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [Cogna Frontend](http://91.99.8.161:3000/).
+Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [Cogna Fullstack Teste](http://91.99.8.161:3000/).
 - Como está sem SSL, pode ser necessário aceitar o aviso de segurança do navegador.
 
 ## Principais decisões técnicas
@@ -53,6 +68,10 @@ Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [
 - Estrutura modular, permitindo a adição de novas rotas e controllers sem necessidade de alterações manuais no arquivo principal.
 - Separação clara de responsabilidades entre definição de rotas, lógica de controle e inicialização do servidor.
 - Implementação de um serviço centralizado (`APIServer`) para gerenciar o ciclo de vida da aplicação, incluindo a configuração do servidor e o carregamento de rotas e controllers.
+
+## Vídeos Demonstrativos
+- [Fluxo do código arquitetura](https://youtu.be/gv522wVLDcA?si=kGCIm80v_tP1-RcS)
+- [Criar nova rota](https://youtu.be/JXCKl7xaaYU?si=OYHnpeuK7ez_A4fC)
 
 ## Extras - Diferenciais (Opcionais)
 
@@ -76,7 +95,6 @@ Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [
 - `GET /`: Retorna a lista de produtos.
 - `GET /produto/:id`: Retorna os detalhes de um produto específico.
 - `POST /produto/importar`: Importa produtos a partir de um arquivo JSON.
-- `PUT /produto/criar`: Cria um novo produto (ainda não implementado).
 
 ## Funcionalidades Implementadas
 - Listagem de produtos na rota `/` com dados carregados do banco de dados PostgreSQL.
@@ -91,7 +109,6 @@ Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [
 - Os arquivos de controllers e rotas devem seguir as extensões `*.controller.js` e `*.route.js`, respectivamente, para serem automaticamente identificados e carregados pelo sistema.
 
 ## Descrição técnica.
-
 ### Serviço Principal: Classe `APIServer`
 - A classe `APIServer` é responsável por inicializar e configurar o servidor da API.
 - Gerencia o ciclo de vida do servidor, incluindo o carregamento das rotas, controllers e middlewares necessários.
@@ -101,16 +118,22 @@ Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [
 ### Serviços Implementados
 ### APIServer
 Classe responsável por iniciar o servidor Express, carregar rotas e controllers, e gerenciar o ciclo de vida da aplicação.
-##### Route
+#### Route
 Classe que define a estrutura de uma rota, incluindo o método HTTP, o caminho e o controller associado.
 #### PostgesDB
 Classe responsável por gerenciar a conexão com o banco de dados PostgreSQL, garantindo que as operações de CRUD sejam realizadas corretamente. Também gerencia a criação de tabelas e schemas configurados através dos models ``Table`` e ``Schema``.
-
 ### Models
 - ``Schema``: Define a estrutura dos dados e validações para os produtos.
 - ``Table``: Representa a tabela de produtos no banco de dados, incluindo métodos para operações CRUD.
 - ``Field``: Define os campos da tabela, incluindo tipos e validações.
 
+### Criar novo endpoint
+Para criar um novo endpoint, siga os passos abaixo ou assista ao vídeo demonstrativo: [Criar nova rota](https://youtu.be/JXCKl7xaaYU?si=OYHnpeuK7ez_A4fC).
+1. Crie um novo arquivo de rota na pasta `src/routes/` com o nome `caminho/nome.route.js`.
+2. Para criar o controller correspondente a route recém criarda, voce tem duas opções:
+   - Crie um novo arquivo de controller na pasta `src/controllers/` com o nome `caminho/nome.controller.js`.
+   - Ou, se preferir, apenas preencha a propriedade `controller` no arquivo de rota com a lógica do endpoint.
+3. Implemente a lógica do endpoint dentro desse arquivo, exportando uma função que será chamada quando a rota for acessada.
 
 ### Estrutura do Projeto
 ```   plaintext
