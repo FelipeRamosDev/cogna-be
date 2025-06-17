@@ -49,25 +49,6 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
 - Separação clara de responsabilidades entre definição de rotas, lógica de controle e inicialização do servidor.
 - Implementação de um serviço centralizado (`APIServer`) para gerenciar o ciclo de vida da aplicação, incluindo a configuração do servidor e o carregamento de rotas e controllers.
 
-### Endpoints Disponíveis
-- `GET /`: Retorna a lista de produtos.
-- `GET /produto/:id`: Retorna os detalhes de um produto específico.
-- `POST /produto/importar`: Importa produtos a partir de um arquivo JSON.
-- `PUT /produto/criar`: Cria um novo produto (ainda não implementado).
-
-## Funcionalidades Implementadas
-- Listagem de produtos na rota `/` com dados carregados do banco de dados PostgreSQL.
-- Detalhamento de produtos na rota `/produto/:id`, retornando informações específicas de cada produto.
-- Importação de produtos via arquivo JSON na rota `/produto/importar`, permitindo a adição em massa de produtos ao banco de dados.
-- Estrutura de testes automatizados com Jest para garantir a qualidade do código e a funcionalidade dos endpoints.
-
-### Carregamento Automático de Rotas e Controllers
-- As rotas e controllers são carregados dinamicamente a partir de diretórios específicos.
-- O sistema percorre os diretórios de rotas e controllers, importando automaticamente todos os arquivos encontrados.
-- Isso elimina a necessidade de registrar manualmente cada rota ou controller, reduzindo erros e facilitando a expansão do sistema.
-- Os arquivos de controllers e rotas devem seguir as extensões `*.controller.js` e `*.route.js`, respectivamente, para serem automaticamente identificados e carregados pelo sistema.
-
-
 ## Extras - Diferenciais (Opcionais)
 
 #### **Implementação do Docker:**
@@ -85,6 +66,24 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
 #### **Criação dos testes Jest:** 
    Foram criados testes automatizados com Jest para controllers, models e endpoints. Os testes podem ser executados localmente com `npm run test` e também rodam automaticamente no CI.
 
+
+### Endpoints Disponíveis
+- `GET /`: Retorna a lista de produtos.
+- `GET /produto/:id`: Retorna os detalhes de um produto específico.
+- `POST /produto/importar`: Importa produtos a partir de um arquivo JSON.
+- `PUT /produto/criar`: Cria um novo produto (ainda não implementado).
+
+## Funcionalidades Implementadas
+- Listagem de produtos na rota `/` com dados carregados do banco de dados PostgreSQL.
+- Detalhamento de produtos na rota `/produto/:id`, retornando informações específicas de cada produto.
+- Importação de produtos via arquivo JSON na rota `/produto/importar`, permitindo a adição em massa de produtos ao banco de dados.
+- Estrutura de testes automatizados com Jest para garantir a qualidade do código e a funcionalidade dos endpoints.
+
+### Carregamento Automático de Rotas e Controllers
+- As rotas e controllers são carregados dinamicamente a partir de diretórios específicos.
+- O sistema percorre os diretórios de rotas e controllers, importando automaticamente todos os arquivos encontrados.
+- Isso elimina a necessidade de registrar manualmente cada rota ou controller, reduzindo erros e facilitando a expansão do sistema.
+- Os arquivos de controllers e rotas devem seguir as extensões `*.controller.js` e `*.route.js`, respectivamente, para serem automaticamente identificados e carregados pelo sistema.
 
 ## Descrição técnica.
 
