@@ -15,7 +15,7 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
    git clone https://github.com/FelipeRamosDev/cogna-be.git
    cd cogna-be
    ```
-3. Rode o seguinte comando para iniciar o container do Postgres:
+3. Rode o seguinte comando para iniciar os containers do backend e do banco de dados PostgreSQL:
    ```bash
    docker-compose up --build -d
    ```
@@ -42,6 +42,11 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
       npm start
       ```
    </details>
+
+
+#### Teste a aplicação na nuvem
+Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [Cogna Frontend](http://91.99.8.161:3000/).
+- Como está sem SSL, pode ser necessário aceitar o aviso de segurança do navegador.
 
 ## Principais decisões técnicas
 - Utilização de carregamento automático (auto-loading) para rotas e controllers, facilitando a escalabilidade e manutenção do projeto.
