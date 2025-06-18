@@ -32,6 +32,7 @@ module.exports = async function(req, res) {
 
       res.status(201).send({ success: true, message: 'User registered successfully.', user: user.data });
    } catch (error) {
-      res.status(500).send(error);
+      console.error('Internal server error:', error);
+      res.status(500).send({ error: true, message: 'An internal server error occurred.' });
    }  
 }
