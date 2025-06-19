@@ -43,8 +43,8 @@ class PostgresDB extends DataBase {
             await this.createSchema(schema)
          }
 
-         await this.createTestUser();
          await this.onReady(this);
+         await this.createTestUser();
          console.log('PostgresDB connected successfully');
       } catch (error) {
          throw this.toError('Failed to connect to PostgresDB: ' + error.message);
@@ -53,14 +53,16 @@ class PostgresDB extends DataBase {
 
    async createTestUser() {
       try {
-         const [ user ] = await this.read('users_schema.users', { email: 'test@test.com' });
+         const [ user ] = await this.read('users_schema.users', { email: { condition: '=', value: 'test@test.com' }});
 
          if (!user) {
+            const bcrypt = require('bcrypt');
+            const hashedPassword = await bcrypt.hash('Test!123', 10);
+
             await this.create('users_schema.users', {
                first_name: 'Test',
                last_name: 'User',
-               password: 'Test!123',
-               confirm_password: 'Test!123',
+               password: hashedPassword,
                email: 'test@test.com'
             });
          }
