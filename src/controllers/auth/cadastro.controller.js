@@ -32,14 +32,14 @@ module.exports = async function(req, res) {
       }
 
       req.session.user = {
-         id: user.data.id,
-         email: user.data.email,
-         name: `${user.data.first_name} ${user.data.last_name}`,
+         id: user.id,
+         email: user.email,
+         name: `${user.first_name} ${user.last_name}`,
       };
 
-      const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: '5m' });
+      const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION || '24h' });
       res.cookie('token', token, { httpOnly: true, secure: true });
-      res.status(201).send({ success: true, message: 'User registered successfully.', user: user.data });
+      res.status(201).send({ success: true, message: 'User registered successfully.', user });
    } catch (error) {
       console.error('Internal server error:', error);
       res.status(500).send({ error: true, message: 'An internal server error occurred.' });

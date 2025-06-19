@@ -26,7 +26,7 @@ module.exports = async function(req, res) {
          name: user.first_name + ' ' + user.last_name,
       };
 
-      const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: '5m' });
+      const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION || '24h' });
       res.cookie('token', token, { httpOnly: true, secure: true });
 
       res.status(200).json({ success: true, user });
