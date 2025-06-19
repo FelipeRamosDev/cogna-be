@@ -38,3 +38,6 @@ jobs:
           DB_NAME: testdb
           DB_USER: testuser
           DB_PASSWORD: testpassword
+          SERVER_PORT: 8000
+          JWT_SECRET: testingsecretkey
+          JWT_EXPIRATION: 1h

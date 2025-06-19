@@ -35,6 +35,4 @@ const apiServer = new APIServer({
    }
 });
 
-apiServer.init();
-
-module.exports = apiServer;
+module.exports = apiServer.init();

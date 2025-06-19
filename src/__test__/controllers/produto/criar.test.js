@@ -4,10 +4,8 @@ describe('PUT /produto/criar', () => {
    let apiServer
    
    beforeAll(async () => {
-      apiServer = require('../../../app');
-      
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for server to start
-   }, 30000);
+      apiServer = await require('../../../app');
+   });
 
    it('should create a product successfully with valid data', async () => {
       const newProduct = {
