@@ -20,6 +20,17 @@ const apiServer = new APIServer({
       onReady: async (database) => {
          try {
             const products = await database.read('products_schema.products', {});
+            const [ user ] = await database.read('users_schema.users', { email: 'test@test.com' });
+
+            if (!user) {
+               await database.create('users_schema.users', {
+                  first_name: 'Test',
+                  last_name: 'User',
+                  password: 'Test!123',
+                  confirm_password: 'Test!123',
+                  email: 'test@test.com'
+               });
+            }
 
             if (!products.length) {
                const dummyProducts = require('./resources/dummy_products.json');

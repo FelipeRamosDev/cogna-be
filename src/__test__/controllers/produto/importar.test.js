@@ -10,7 +10,7 @@ describe('POST /produto/importar', () => {
 
       const loginResponse = await request(apiServer.app)
          .post('/auth/login')
-         .send({ email: 'felipe@feliperamos.dev', password: 'Felipe!123' });
+         .send({ email: 'test@test.com', password: 'Test!123' });
 
       // 2. Save the cookie from the response
       authCookie = loginResponse.headers['set-cookie'];
