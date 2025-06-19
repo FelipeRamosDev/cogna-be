@@ -50,6 +50,17 @@ class PostgresDB extends DataBase {
       }
    }
 
+   async isConnected() {
+      try {
+         const result = await this.pool.query('SELECT 1');
+         return Boolean(result.rowCount > 0);
+      } catch (error) {
+         this.toError('Error checking connection: ' + error.message);
+         return false;
+         
+      }
+   }
+
    /**
     * Builds a SQL WHERE clause from conditions.
     * Supports both AND (object) and OR (array) conditions.

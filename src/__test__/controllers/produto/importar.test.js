@@ -1,13 +1,27 @@
 const request = require('supertest');
-const apiServer = require('../../../app');
 const dummy_products = require('../../../resources/dummy_products.json');
 
 describe('POST /produto/importar', () => {
+   let apiServer;
+   let authCookie;
+   
+   beforeAll(async () => {
+      apiServer = await require('../../../app');
+
+      const loginResponse = await request(apiServer.app)
+         .post('/auth/login')
+         .send({ email: 'felipe@feliperamos.dev', password: 'Felipe!123' });
+
+      // 2. Save the cookie from the response
+      authCookie = loginResponse.headers['set-cookie'];
+   });
+
    it('should import products successfully with valid data', async () => {
       const mockData = dummy_products;
 
       const response = await request(apiServer.app)
          .post('/produto/importar')
+         .set('Cookie', authCookie) // 3. Send the cookie
          .attach('file', Buffer.from(JSON.stringify(mockData)), 'produtos.json')
 
       expect(response.status).toBe(201);
@@ -17,6 +31,7 @@ describe('POST /produto/importar', () => {
    it('should return 400 if data is missing', async () => {
       const response = await request(apiServer.app)
          .post('/produto/importar')
+         .set('Cookie', authCookie) // 3. Send the cookie
          .send({})
 
       expect(response.status).toBe(400);
@@ -30,6 +45,7 @@ describe('POST /produto/importar', () => {
 
       const response = await request(apiServer.app)
          .post('/produto/importar')
+         .set('Cookie', authCookie) // 3. Send the cookie
          .send(invalidData)
 
       expect(response.status).toBe(400);
@@ -42,6 +58,7 @@ describe('POST /produto/importar', () => {
 
       const response = await request(apiServer.app)
          .post('/produto/importar')
+         .set('Cookie', authCookie) // 3. Send the cookie
          .send(errorData)
 
       expect(response.status).toBeGreaterThanOrEqual(400);

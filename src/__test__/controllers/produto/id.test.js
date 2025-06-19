@@ -1,7 +1,12 @@
-const apiServer = require('../../../app');
 const request = require('supertest');
 
 describe('GET /produto/:id', () => {
+   let apiServer
+   
+   beforeAll(async () => {
+      apiServer = await require('../../../app');
+   });
+
    it('should respond to GET /produto/:id with 200 or 404', async () => {
       const res = await request(apiServer.app).get('/produto/1');
       expect([200, 404]).toContain(res.statusCode);

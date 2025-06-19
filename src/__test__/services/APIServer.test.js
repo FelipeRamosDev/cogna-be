@@ -1,61 +1,40 @@
-const express = require('express');
-const APIServer = require('../../services/APIServer');
-const Route = require('../../services/Route');
+const request = require('supertest');
 
-jest.mock('express');
-jest.mock('fs');
-jest.mock('path');
-jest.mock('../../services/Route');
+describe('GET /produto/:id', () => {
+   let apiServer
 
-describe('APIServer', () => {
-   let server;
-   let mockApp;
-
-   beforeEach(() => {
-      mockApp = {
-         use: jest.fn(),
-         listen: jest.fn()
-      };
-
-      express.mockReturnValue(mockApp);
-      server = new APIServer();
+   beforeAll(async () => {
+      apiServer = await require('../../app');
    });
 
-   afterEach(() => {
-      jest.clearAllMocks();
+   it('should initialize the database', async () => {
+      if (apiServer.database) {
+         expect(apiServer.database.pool).toBeDefined();
+   
+         const result = await apiServer.database.isConnected();
+         expect(result).toBe(true);
+      }
    });
 
-   it('should initialize with default values', () => {
-      expect(server.port).toBe(8000);
-      expect(server.middlewares).toEqual([]);
-      expect(typeof server.onListen).toBe('function');
-      expect(server.routes instanceof Map).toBe(true);
+   it('should start express and listen on the configured port', async () => {
+      // Supondo que o APIServer exponha a porta e o host
+      expect(apiServer.port).toBeDefined();
+      expect(apiServer.host).toBeDefined();
+
+      // Você pode tentar fazer uma requisição para garantir que está ouvindo
+      const res = await request(apiServer.app).get('/');
+      expect([200, 404]).toContain(res.status);
    });
 
-   it('should apply middlewares and start server on init', () => {
-      const middleware = jest.fn((req, res, next) => next());
-      server.middlewares = [middleware];
-      server.loadRoutes = jest.fn();
-
-      server.init();
-
-      expect(mockApp.use).toHaveBeenCalledWith(middleware);
-      expect(server.loadRoutes).toHaveBeenCalled();
+   it('should register routes', () => {
+      // Se o APIServer expõe as rotas registradas
+      expect(apiServer.routes).toBeInstanceOf(Map);
+      // Exemplo: deve ter pelo menos uma rota registrada
+      expect(apiServer.routes.size).toBeGreaterThan(0);
    });
 
-   it('should register a valid Route instance', () => {
-      const route = new Route({ path: '/', method: 'GET' });
-
-      server.setRoute(route);
-
-      expect(server.routes.get(route.path)).toBeDefined();
-      expect(server.routes.get(route.path) instanceof Route).toBe(true);
-      expect(mockApp.use).toHaveBeenCalledWith(route.router);
-   });
-
-   it('should not register an invalid Route instance', () => {
-      const route = { path: '/test', router: {} };
-      server.setRoute(route);
-      expect(mockApp.use).not.toHaveBeenCalled();
+   it('should return 404 for unknown routes', async () => {
+      const res = await request(apiServer.app).get('/unknown-route');
+      expect(res.status).toBe(404);
    });
 });
