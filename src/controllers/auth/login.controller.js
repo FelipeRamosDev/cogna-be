@@ -20,8 +20,16 @@ module.exports = async function(req, res) {
          return res.status(400).json({ message: 'Invalid password!' });
       }
 
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      res.status(200).json({ message: 'Login successful', user, token });
+      req.session.user = {
+         id: user.id,
+         email: user.email,
+         name: user.first_name + ' ' + user.last_name,
+      };
+
+      const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: '5m' });
+      res.cookie('token', token, { httpOnly: true, secure: true });
+
+      res.status(200).json({ success: true, user });
    } catch (error) {
       console.error('Error in login controller:', error);
       res.status(500).json({ message: 'Internal server error' });
