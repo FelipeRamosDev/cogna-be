@@ -54,7 +54,6 @@ class APIServer {
                const PostgresDB = require('./DataBase/PostgresDB');
 
                this.database = new PostgresDB(this.database);
-               this.database.init();
                break;
             case 'mongodb':
                // MongoDB is not implemented yet
@@ -68,7 +67,7 @@ class APIServer {
    /**
     * Initializes the API server by loading routes and starting the Express app.
     */
-   init() {
+   async init() {
       this.app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
       this.app.use(express.json());
       this.app.use(express.urlencoded({ extended: true }));
@@ -80,6 +79,7 @@ class APIServer {
          cookie: { secure: false } // true if HTTPS
       }));
 
+      await this.database.init();
       this.middlewares.map(middleware => this.app.use(middleware));      
       this.loadRoutes();
 
