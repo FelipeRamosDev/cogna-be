@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 module.exports = async function(req, res) {
    const DB = this.getDataBase();
@@ -30,6 +31,14 @@ module.exports = async function(req, res) {
          return res.status(400).send({ error: true, message: 'Error registering user.' });
       }
 
+      req.session.user = {
+         id: user.data.id,
+         email: user.data.email,
+         name: `${user.data.first_name} ${user.data.last_name}`,
+      };
+
+      const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: '5m' });
+      res.cookie('token', token, { httpOnly: true, secure: true });
       res.status(201).send({ success: true, message: 'User registered successfully.', user: user.data });
    } catch (error) {
       console.error('Internal server error:', error);
