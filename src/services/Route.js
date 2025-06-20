@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const authenticateToken = require('../middlewares/authenticateToken');
 
 /**
  * Route Service
@@ -15,6 +16,7 @@ class Route {
     * @param {Object} setup - Route configuration object.
     * @param {string} setup.path - The route path (e.g., '/users').
     * @param {'GET'|'POST'|'PUT'|'DELETE'} setup.method - The HTTP method (e.g., 'GET', 'POST', 'PUT', 'DELETE').
+    *  @param {boolean} [setup.authProtected=false] - Whether the route requires authentication.
     * @param {Function[]} [setup.middlewares] - Optional array of Express middleware functions.
     * @param {Function} setup.controller - The route handler/controller function.
     *
@@ -24,6 +26,7 @@ class Route {
          path,
          method,
          controller,
+         authProtected = false,
          middlewares = []
       } = setup;
 
@@ -33,8 +36,14 @@ class Route {
 
       this.path = path;
       this.method = method;
-      this.middlewares = middlewares;
       this.controller = controller;
+      this.authProtected = authProtected;
+
+      if (this.authProtected) {
+         this.middlewares = [ authenticateToken, ...middlewares ];
+      } else {
+         this.middlewares = middlewares;
+      }
 
       this.loadController();
       this.setRoute();
@@ -87,8 +96,13 @@ class Route {
       const controllersDir = path.resolve(__dirname, '../controllers');
       const filePath = this.path === '/' ? '/index.controller.js' : this.path + '.controller.js';
       const controllerFilePath = path.join(controllersDir, filePath.replace(/^[/]+|:/g, ''));
+      const controllerContext = {
+         getAPI: () => this.apiServer,
+         getDataBase: () => this.apiServer?.database,
+      };
 
       if (this.controller) {
+         this.controller = this.controller.bind(controllerContext);
          return;
       }
 
