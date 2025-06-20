@@ -4,7 +4,7 @@ function authenticateToken(req, res, next) {
    const authHeader = req.cookies?.token;
 
    if (!authHeader) {
-      return res.status(401).send({ name: 'MISSING_TOKEN', message: 'Any token provided.' });
+      return res.status(401).send({ name: 'MISSING_TOKEN', message: 'No token provided.' });
    }
 
    jwt.verify(authHeader, process.env.JWT_SECRET, (err, decoded) => {
