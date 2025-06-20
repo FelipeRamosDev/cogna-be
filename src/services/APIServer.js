@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const Route = require('./Route');
+const e = require('express');
 
 /**
  * APIServer Service
@@ -152,6 +153,32 @@ class APIServer {
       });
 
       return fileList;
+   }
+
+   toError(error) {
+      if (typeof error === 'string') {
+         return {
+            error: true,
+            status: 500,
+            message: error,
+            code: 'INTERNAL_SERVER_ERROR'
+         }
+      } else if (!Array.isArray(error) && typeof error === 'object') {
+         return {
+            error: true,
+            status: error.status || 500,
+            message: error.message || 'Internal server error',
+            code: error.code || 'INTERNAL_SERVER_ERROR',
+            data: error
+         }
+      }
+
+      return {
+         error: true,
+         status: 500,
+         message: 'Unknown error',
+         code: 'INTERNAL_SERVER_ERROR'
+      }
    }
 }
 
