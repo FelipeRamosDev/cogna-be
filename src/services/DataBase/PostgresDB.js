@@ -67,7 +67,7 @@ class PostgresDB extends DataBase {
             });
          }
       } catch (error) {
-         this.toError('Error creating test user: ' + error.message);
+         console.error(this.toError('Error creating test user: ' + error.message));
       }
    }
 
