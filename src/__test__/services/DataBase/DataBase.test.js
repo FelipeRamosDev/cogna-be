@@ -18,7 +18,7 @@ describe('DataBase Class', () => {
       expect(db.dbName).toBe('test-db');
       expect(db.host).toBe('localhost');
       expect(db.password).toBe('1234');
-      expect(db.schemas).toEqual([schema]);
+      expect(db.schemas).toEqual(new Map([[schema.name, schema]]));
       expect(db.pool).toBeNull();
    });
 

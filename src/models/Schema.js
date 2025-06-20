@@ -22,7 +22,7 @@ class Schema {
       
       tables.map(table => {
          const newTable = new Table(table);
-         this.tables.set(newTable.name, newTable);
+         this.tables.set(table.name, newTable);
       });
    }
 
