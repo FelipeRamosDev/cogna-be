@@ -18,7 +18,25 @@ class Schema {
       }
 
       this.name = name;
-      this.tables = tables.map(table => new Table(table));
+      this.tables = new Map();
+      
+      tables.map(table => {
+         const newTable = new Table(table);
+         this.tables.set(newTable.name, newTable);
+      });
+   }
+
+   getTable(tableName) {
+      if (!tableName || typeof tableName !== 'string') {
+         throw new Error("getTable method requires a valid 'tableName' parameter of type string.");
+      }
+
+      const table = this.tables.get(tableName);
+      if (!table) {
+         throw new Error(`Table ${tableName} not found in schema ${this.name}.`);
+      }
+
+      return table;
    }
 
    buildCreateSchemaQuery() {

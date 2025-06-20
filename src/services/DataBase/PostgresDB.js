@@ -131,15 +131,26 @@ class PostgresDB extends DataBase {
       return parsed.join(', ');
    }
 
-   buildSort(sort = {}) {
+   buildSort(tableName, sort = {}) {
+      const allowedOrders = ['ASC', 'DESC'];
+      const table = this.getTable(tableName);
+
+      if (!table) { 
+         throw this.toError(`Table ${tableName} not found.`);
+      }
+
       if (typeof sort !== 'object' || Object.keys(sort).length === 0) {
          return '';
       }
 
+      // Filtering to avoid SQL injection and invalid orders
       const sortEntries = Object.entries(sort);
-      const parsed = sortEntries.map(([key, order]) => {
-         return `${key} ${order.toUpperCase()}`;
-      });
+      const filtered = sortEntries.filter(([key, order]) => table.getField(key) && allowedOrders.includes(order.toUpperCase()));
+      const parsed = filtered.map(([key, order]) => `${key} ${order.toUpperCase()}`);
+
+      if (!parsed.length) {
+         return '';
+      }
 
       return `ORDER BY ${parsed.join(', ')}`;
    }
@@ -286,7 +297,7 @@ class PostgresDB extends DataBase {
     */
    async read(tableName, conditions, sort) {
       const whereClause = this.buildWhere(conditions);
-      const sortClause = this.buildSort(sort);
+      const sortClause = this.buildSort(tableName, sort);
 
       const query = `
          SELECT * FROM ${tableName}
