@@ -1,3 +1,4 @@
+const QuerySQL = require('../../models/QuerySQL');
 const DataBase = require('./DataBase');
 const { Pool } = require('pg');
 
@@ -129,6 +130,19 @@ class PostgresDB extends DataBase {
 
       const parsed = dataEntries.map((key, index) => `${key} = $${index + 1}`);
       return parsed.join(', ');
+   }
+
+   buildSort(sort = {}) {
+      if (typeof sort !== 'object' || Object.keys(sort).length === 0) {
+         return '';
+      }
+
+      const sortEntries = Object.entries(sort);
+      const parsed = sortEntries.map(([key, order]) => {
+         return `${key} ${order.toUpperCase()}`;
+      });
+
+      return `ORDER BY ${parsed.join(', ')}`;
    }
 
    /**
@@ -271,12 +285,14 @@ class PostgresDB extends DataBase {
     * @param {object|array} conditions - Conditions for the WHERE clause. An array of conditions can be used for OR logic. If an object is provided, it will be treated as AND conditions.
     * @returns {Promise<Array>} - Array of records.
     */
-   async read(tableName, conditions) {
+   async read(tableName, conditions, sort) {
       const whereClause = this.buildWhere(conditions);
+      const sortClause = this.buildSort(sort);
 
       const query = `
          SELECT * FROM ${tableName}
          ${whereClause ? `WHERE ${whereClause}` : ''}
+         ${sortClause}
       `;
 
       try {
