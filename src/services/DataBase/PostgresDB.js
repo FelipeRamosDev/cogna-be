@@ -1,4 +1,3 @@
-const QuerySQL = require('../../models/QuerySQL');
 const DataBase = require('./DataBase');
 const { Pool } = require('pg');
 
