@@ -1,8 +1,10 @@
 const express = require('express');
+const session = require('express-session');
 const fs = require('fs');
 const path = require('path');
-const Route = require('./Route');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const Route = require('./Route');
 
 /**
  * APIServer Service
@@ -52,7 +54,6 @@ class APIServer {
                const PostgresDB = require('./DataBase/PostgresDB');
 
                this.database = new PostgresDB(this.database);
-               this.database.init();
                break;
             case 'mongodb':
                // MongoDB is not implemented yet
@@ -66,10 +67,19 @@ class APIServer {
    /**
     * Initializes the API server by loading routes and starting the Express app.
     */
-   init() {
+   async init() {
+      this.app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
       this.app.use(express.json());
-      this.app.use(cors());
+      this.app.use(express.urlencoded({ extended: true }));
+      this.app.use(cookieParser());
+      this.app.use(session({
+         secret: process.env.JWT_SECRET || 'default_secret_key',
+         resave: false,
+         saveUninitialized: false,
+         cookie: { secure: false } // true if HTTPS
+      }));
 
+      await this.database.init();
       this.middlewares.map(middleware => this.app.use(middleware));      
       this.loadRoutes();
 

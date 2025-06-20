@@ -59,10 +59,6 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
    </details>
 
 
-#### Teste a aplicação na nuvem
-Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [Cogna Fullstack Teste](http://91.99.8.161:3000/).
-- Como está sem SSL, pode ser necessário aceitar o aviso de segurança do navegador.
-
 ## Principais decisões técnicas
 - Utilização de carregamento automático (auto-loading) para rotas e controllers, facilitando a escalabilidade e manutenção do projeto.
 - Estrutura modular, permitindo a adição de novas rotas e controllers sem necessidade de alterações manuais no arquivo principal.
@@ -74,19 +70,18 @@ Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [
 - [Criar nova rota](https://youtu.be/JXCKl7xaaYU?si=OYHnpeuK7ez_A4fC)
 
 ## Extras - Diferenciais (Opcionais)
-
 #### **Implementação do Docker:**
    O projeto agora pode ser executado em containers Docker, usando arquivos `Dockerfile` e `docker-compose.yml` para orquestrar frontend, backend e banco de dados. Basta rodar `docker-compose up --build` para iniciar tudo integrado.
-
+#### **Autenticação com JWT:** 
+   Implementada autenticação JWT para proteger endpoints sensíveis, garantindo que apenas usuários autenticados possam acessar certas rotas. 
+#### **Cadastro de usuários:**
+   Adicionada funcionalidade de cadastro de usuários, permitindo que novos usuários se registrem e façam login no sistema.
 #### **Implementação do PostgreSQL:** 
    O backend utiliza PostgreSQL como banco de dados, configurado automaticamente pelo Docker Compose. Todos os produtos são salvos e consultados diretamente do banco, com persistência garantida entre reinicializações.
-
 #### **Implementação do GitHub Actions CI:** 
    Foi adicionado um workflow de CI com GitHub Actions, que executa build e testes automatizados a cada pull request ou push, usando um ambiente com PostgreSQL para garantir a qualidade do código.
-
 #### **Carregamento dos produtos de "/" vindo do banco de dados:** 
    A página inicial (`/`) carrega e exibe os produtos diretamente do banco PostgreSQL, garantindo que a listagem esteja sempre atualizada.
-
 #### **Criação dos testes Jest:** 
    Foram criados testes automatizados com Jest para controllers, models e endpoints. Os testes podem ser executados localmente com `npm run test` e também rodam automaticamente no CI.
 

@@ -4,8 +4,8 @@ const users = new Table({
    name: 'users',
    fields: [
       { name: 'id', primaryKey: true },
-      { name: 'firstname', type: 'VARCHAR(255)' },
-      { name: 'lastname', type: 'VARCHAR(255)' },
+      { name: 'first_name', type: 'VARCHAR(255)' },
+      { name: 'last_name', type: 'VARCHAR(255)' },
       { name: 'email', type: 'VARCHAR(255)', unique: true },
       { name: 'password', type: 'VARCHAR(255)' },
       { name: 'created_at', type: 'TIMESTAMP', defaultValue: 'CURRENT_TIMESTAMP' }
