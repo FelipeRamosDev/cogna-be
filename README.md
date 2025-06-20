@@ -59,10 +59,6 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
    </details>
 
 
-#### Teste a aplicação na nuvem
-Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [Cogna Fullstack Teste](http://91.99.8.161:3000/).
-- Como está sem SSL, pode ser necessário aceitar o aviso de segurança do navegador.
-
 ## Principais decisões técnicas
 - Utilização de carregamento automático (auto-loading) para rotas e controllers, facilitando a escalabilidade e manutenção do projeto.
 - Estrutura modular, permitindo a adição de novas rotas e controllers sem necessidade de alterações manuais no arquivo principal.
