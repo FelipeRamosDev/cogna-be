@@ -5,7 +5,6 @@ const path = require('path');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const Route = require('./Route');
-const e = require('express');
 
 /**
  * APIServer Service
