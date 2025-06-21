@@ -37,9 +37,9 @@ class QuerySQL {
 
    select(fields = ['*']) {
       if (Array.isArray(fields) && fields.length) {
-         this.select = `SELECT ${fields.join(', ')} FROM`;
+         this.selectClause = `SELECT ${fields.join(', ')} FROM`;
       } else {
-         this.select = 'SELECT * FROM';
+         this.selectClause = 'SELECT * FROM';
       }
 
       return this;
@@ -112,7 +112,7 @@ class QuerySQL {
    sort(sort = {}) {
       const allowedOrders = ['ASC', 'DESC'];
       if (typeof sort !== 'object' || Object.keys(sort).length === 0) {
-         return '';
+         return this;
       }
 
       const sortEntries = Object.entries(sort);
