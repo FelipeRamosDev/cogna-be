@@ -1,6 +1,6 @@
 class QuerySQL {
    constructor(database, schemaName = '', tableName = '') {
-      if (!database || typeof database.pool.query !== 'function') {
+      if (!database?.pool || typeof database.pool.query !== 'function') {
          throw new Error('A valid database instance with a query method is required.');
       }
 
