@@ -174,7 +174,8 @@ class QuerySQL {
             count: response.rowCount || 0
          }
       } catch (error) {
-         return this.database.toError('Error reading records from database: ' + error.message);
+         const errorData = this.database.toError('Error reading records from database: ' + error.message);
+         return errorData;
       }
    }
 }

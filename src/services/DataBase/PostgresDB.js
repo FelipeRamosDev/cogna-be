@@ -1,5 +1,6 @@
-const DataBase = require('./DataBase');
 const { Pool } = require('pg');
+const DataBase = require('./DataBase');
+const QuerySQL = require('./builders/QuerySQL');
 
 class PostgresDB extends DataBase {
    /**
@@ -53,7 +54,8 @@ class PostgresDB extends DataBase {
 
    async createTestUser() {
       try {
-         const [ user ] = await this.read('users_schema.users', { email: { condition: '=', value: 'test@test.com' }});
+         const userQuery = this.query('users_schema', 'users').where({ email: 'test@test.com' }).limit(1);
+         const { data: [ user ] } = await userQuery.exec();
 
          if (!user) {
             const bcrypt = require('bcrypt');
@@ -137,30 +139,6 @@ class PostgresDB extends DataBase {
 
       const parsed = dataEntries.map((key, index) => `${key} = $${index + 1}`);
       return parsed.join(', ');
-   }
-
-   buildSort(tableName, sort = {}) {
-      const allowedOrders = ['ASC', 'DESC'];
-      const table = this.getTable(tableName);
-
-      if (typeof sort !== 'object' || Object.keys(sort).length === 0) {
-         return '';
-      }
-
-      if (!table) { 
-         throw this.toError(`Table ${tableName} not found.`);
-      }
-
-      // Filtering to avoid SQL injection and invalid orders
-      const sortEntries = Object.entries(sort);
-      const filtered = sortEntries.filter(([key, order]) => table.getField(key) && allowedOrders.includes(order.toUpperCase()));
-      const parsed = filtered.map(([key, order]) => `${key} ${order.toUpperCase()}`);
-
-      if (!parsed.length) {
-         return '';
-      }
-
-      return `ORDER BY ${parsed.join(', ')}`;
    }
 
    /**
@@ -297,31 +275,8 @@ class PostgresDB extends DataBase {
       }
    }
 
-   /**
-    * Reads records from a table with optional conditions.
-    * @param {string} tableName - Table name (with schema if needed).
-    * @param {object|array} conditions - Conditions for the WHERE clause. An array of conditions can be used for OR logic. If an object is provided, it will be treated as AND conditions.
-    * @returns {Promise<Array>} - Array of records.
-    */
-   async read(tableName, conditions, sort) {
-      const whereClause = this.buildWhere(conditions);
-      const sortClause = this.buildSort(tableName, sort);
-
-      const query = `
-         SELECT * FROM ${tableName}
-         ${whereClause ? `WHERE ${whereClause}` : ''}
-         ${sortClause}
-      `;
-
-      try {
-         const values = this.getConditionValues(conditions);
-         const result = await this.pool.query(query, values);
-
-         return result.rows;
-      } catch (error) {
-         this.toError('Error reading records from database: ' + error.message);
-         return [];
-      }
+   query(schemaName, tableName) {
+      return new QuerySQL(this, schemaName, tableName);
    }
 
    /**

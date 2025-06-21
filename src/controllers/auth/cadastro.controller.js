@@ -17,7 +17,8 @@ module.exports = async function(req, res) {
    }
 
    try {
-      const userExists = await DB.read('users_schema.users', { email: { condition: '=', value: email } });
+      const { data } = await DB.query('users_schema', 'users').where({ email }).exec();
+      const userExists = data;
       if (userExists.length) {
          const error = API.toError({ status: 400, code: 'EMAIL_EXISTS', message: 'Email already exists.' });
          return res.status(error.status).send(error);

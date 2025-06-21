@@ -103,15 +103,18 @@ describe('PostgresDB', () => {
    describe('read', () => {
       it('should select and return rows', async () => {
          poolMock.query.mockResolvedValue({ rows: [{ id: 1 }] });
-         const result = await db.read('schema.table', { id: { value: 1 } });
+         const { data } = await db.query('schema', 'table').where({ id: 1 }).exec();
+         const result = data;
          expect(poolMock.query).toHaveBeenCalled();
          expect(result).toEqual([{ id: 1 }]);
       });
 
       it('should return empty array on error', async () => {
          poolMock.query.mockRejectedValue(new Error('fail'));
-         const result = await db.read('schema.table', { id: { value: 1 } });
-         expect(result).toEqual([]);
+         const res = await db.query('schema', 'table').where({ id: 1 }).exec();
+
+         expect(res).toHaveProperty('error', true);
+         expect(res).toHaveProperty('message', 'Error reading records from database: fail');
       });
    });
 

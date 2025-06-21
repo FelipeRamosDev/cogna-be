@@ -31,7 +31,7 @@ describe('DataBase Class', () => {
    });
 
    it('should throw error for read()', async () => {
-      await expect(db.read()).rejects.toThrow('Method read is implemented in PostgresDB or MongoDB');
+      await expect(db.query()).rejects.toThrow('Method read is implemented in PostgresDB or MongoDB');
    });
 
    it('should throw error for update()', async () => {
