@@ -19,7 +19,8 @@ const apiServer = new APIServer({
       ],
       onReady: async (database) => {
          try {
-            const products = await database.read('products_schema.products', {});
+            const { data } = await database.query('products_schema', 'products').limit(1).exec();
+            const products = data;
 
             if (!products.length) {
                const dummyProducts = require('./resources/dummy_products.json');

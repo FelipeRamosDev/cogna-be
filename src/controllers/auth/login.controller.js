@@ -12,7 +12,8 @@ module.exports = async function(req, res) {
    }
 
    try {
-      const [ user ] = await DB.read('users_schema.users', { email: { condition: '=', value: email } });
+      const { data } = await DB.query('users_schema', 'users').where({ email }).exec();
+      const [ user ] = data; // Assuming the query returns an array of users
       if (!user) {
          const error = api.toError({ status: 400, code: 'INVALID_PARAM', message: 'Invalid email!' });
          return res.status(error.status).send(error);

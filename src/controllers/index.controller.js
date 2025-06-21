@@ -1,14 +1,20 @@
 module.exports = async function(req, res) {
    const db = this.getDataBase();
+   const api = this.getAPI();
 
-   const products = await db.read('products_schema.products', {}, { created_at: 'DESC' });
-   if (!products) {
-      res.status(404).send({ error: true, message: 'Error on products reading on database!' });
-      return;
+   try {
+      const { success, data } = await db.query('products_schema', 'products').sort({ created_at: 'DESC' }).exec();
+      const products = data;
+      if (!success) {
+         res.status(404).send(api.toError('Error on products reading on database!'));
+         return;
+      }
+   
+      res.status(200).send({
+         success: true,
+         products: products.data || []
+      });
+   } catch (error) {
+      res.status(500).send(api.toError('Internal server error'));
    }
-
-   res.status(200).send({
-      success: true,
-      products: products
-   });
 }
