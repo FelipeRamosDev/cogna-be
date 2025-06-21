@@ -39,7 +39,7 @@ class PostgresDB extends DataBase {
 
       try {
          await this.pool.connect();
-         for (const schema of this.schemas) {
+         for (const schema of this.getSchemasArray()) {
             await this.createSchema(schema)
          }
 
@@ -59,12 +59,16 @@ class PostgresDB extends DataBase {
             const bcrypt = require('bcrypt');
             const hashedPassword = await bcrypt.hash('Test!123', 10);
 
-            await this.create('users_schema.users', {
+            const created = await this.create('users_schema.users', {
                first_name: 'Test',
                last_name: 'User',
                password: hashedPassword,
                email: 'test@test.com'
             });
+
+            if (created.error) {
+               throw created;
+            }
          }
       } catch (error) {
          console.error(this.toError('Error creating test user: ' + error.message));
@@ -80,6 +84,10 @@ class PostgresDB extends DataBase {
          return false;
          
       }
+   }
+
+   getSchemasArray() {
+      return Array.from(this.schemas.values());
    }
 
    /**
@@ -131,6 +139,30 @@ class PostgresDB extends DataBase {
       return parsed.join(', ');
    }
 
+   buildSort(tableName, sort = {}) {
+      const allowedOrders = ['ASC', 'DESC'];
+      const table = this.getTable(tableName);
+
+      if (typeof sort !== 'object' || Object.keys(sort).length === 0) {
+         return '';
+      }
+
+      if (!table) { 
+         throw this.toError(`Table ${tableName} not found.`);
+      }
+
+      // Filtering to avoid SQL injection and invalid orders
+      const sortEntries = Object.entries(sort);
+      const filtered = sortEntries.filter(([key, order]) => table.getField(key) && allowedOrders.includes(order.toUpperCase()));
+      const parsed = filtered.map(([key, order]) => `${key} ${order.toUpperCase()}`);
+
+      if (!parsed.length) {
+         return '';
+      }
+
+      return `ORDER BY ${parsed.join(', ')}`;
+   }
+
    /**
     * Extracts values from condition objects for parameterized queries.
     * @param {object} conditions - Condition object.
@@ -157,7 +189,7 @@ class PostgresDB extends DataBase {
     * @param {Array} tables - Array of table definitions ({ name, fields }).
     */
    async createSchema(schema) {
-      const { name: schemaName, tables = [] } = schema;
+      const { name: schemaName, tables = new Map() } = schema;
 
       try {
          await this.pool.query(schema.buildCreateSchemaQuery());
@@ -167,7 +199,7 @@ class PostgresDB extends DataBase {
       }
 
       try {
-         for (const table of tables) {
+         for (const table of Array.from(tables.values())) {
             await this.createTable(schemaName, table);
          }
       } catch (error) {
@@ -271,12 +303,14 @@ class PostgresDB extends DataBase {
     * @param {object|array} conditions - Conditions for the WHERE clause. An array of conditions can be used for OR logic. If an object is provided, it will be treated as AND conditions.
     * @returns {Promise<Array>} - Array of records.
     */
-   async read(tableName, conditions) {
+   async read(tableName, conditions, sort) {
       const whereClause = this.buildWhere(conditions);
+      const sortClause = this.buildSort(tableName, sort);
 
       const query = `
          SELECT * FROM ${tableName}
          ${whereClause ? `WHERE ${whereClause}` : ''}
+         ${sortClause}
       `;
 
       try {

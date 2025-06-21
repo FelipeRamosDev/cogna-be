@@ -21,16 +21,46 @@ class DataBase {
          dbName = 'default-db',
          host = '0.0.0.0',
          password = '',
-         schemas = [],
+         schemas = new Map(),
          onReady = () => {}
       } = setup;
 
       this.dbName = dbName;
       this.host = host;
       this.password = password;
-      this.schemas = schemas;
+      this.schemas = new Map();
       this.onReady = onReady;
       this.pool = null;
+
+      schemas.map(schema => this.schemas.set(schema.name, schema));
+   }
+
+   getSchema(schemaName) {
+      if (!schemaName) {
+         throw new Error('Schema name is required.');
+      }
+
+      const schema = this.schemas.get(schemaName);
+      if (!schema) {
+         throw new Error(`Schema ${schemaName} not found.`);
+      }
+
+      return schema;
+   }
+
+   getTable(tablePath) {
+      const [ schemaName, tableName ] = tablePath.split('.');
+      if (!schemaName || !tableName) {
+         throw new Error(`Invalid table name format: ${tablePath}. Expected format is 'schema.table'.`);
+      }
+
+      const schema = this.getSchema(schemaName);
+      const table = schema.getTable(tableName);
+      if (!table) {
+         throw new Error(`Table ${tableName} not found in schema ${schemaName}.`);
+      }
+
+      return table;
    }
 
    async createSchema() {

@@ -1,3 +1,4 @@
+const Schema = require('../../../models/Schema');
 const PostgresDB = require('../../../services/DataBase/PostgresDB');
 const { Pool } = require('pg');
 
@@ -19,7 +20,7 @@ describe('PostgresDB', () => {
          dbName: 'testdb',
          host: 'localhost',
          password: 'secret',
-         schemas: []
+         schemas: [new Schema({ name: 'schema', tables: [{ name: 'table', fields: [] }] })]
       });
       poolMock = db.pool;
       poolMock.query.mockReset();
@@ -102,14 +103,14 @@ describe('PostgresDB', () => {
    describe('read', () => {
       it('should select and return rows', async () => {
          poolMock.query.mockResolvedValue({ rows: [{ id: 1 }] });
-         const result = await db.read('table', { id: { value: 1 } });
+         const result = await db.read('schema.table', { id: { value: 1 } });
          expect(poolMock.query).toHaveBeenCalled();
          expect(result).toEqual([{ id: 1 }]);
       });
 
       it('should return empty array on error', async () => {
          poolMock.query.mockRejectedValue(new Error('fail'));
-         const result = await db.read('table', { id: { value: 1 } });
+         const result = await db.read('schema.table', { id: { value: 1 } });
          expect(result).toEqual([]);
       });
    });

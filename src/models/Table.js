@@ -21,6 +21,19 @@ class Table {
       this.fields = fields.map(field => new Field(field));
    }
 
+   getField(fieldName) {
+      if (!fieldName || typeof fieldName !== 'string') {
+         throw new Error("getField method requires a valid 'fieldName' parameter of type string.");
+      }
+
+      const field = this.fields.find(f => f.name === fieldName);
+      if (!field) {
+         throw new Error(`Field ${fieldName} not found in table ${this.name}.`);
+      }
+
+      return field;
+   }
+
    buildCreateTableQuery(schemaName) {
       if (!schemaName || !this.name) {
          throw new Error('Table name and schema name is required to build the "create table" query');
