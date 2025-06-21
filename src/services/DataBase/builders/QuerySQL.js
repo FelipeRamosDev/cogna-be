@@ -12,6 +12,7 @@ class QuerySQL {
       this.whereClause = '';
       this.sortClause = '';
       this.limitClause = '';
+      this.values = [];
    }
 
    get tablePath() {
@@ -46,7 +47,7 @@ class QuerySQL {
 
    from(schemaName, tableName) {
       if (typeof schemaName !== 'string' || typeof tableName !== 'string') {
-         throw new Error('Schema name and table name must be strings.');
+         throw this.database.toError('Schema name and table name must be strings.');
       }
 
       this.schemaName = schemaName;
@@ -73,8 +74,10 @@ class QuerySQL {
          result = conditions.map((current, idx) => {
             const [key, props] = current;
             const operator = props.operator || '=';
+            const index = this.values.length + 1;
 
-            return `${key} ${operator} $${idx + startIndex}`;
+            this.values.push(props.value);
+            return `${key} ${operator} $${index}`;
          }).join(' OR ');
       } else if (typeof conditions === 'object') {
          // If conditions is an object, we assume it's a list of AND conditions
@@ -82,8 +85,10 @@ class QuerySQL {
          result = Object.entries(conditions).map((current, idx) => {
             const [key, props] = current;
             const operator = props.operator || '=';
+            const index = this.values.length + 1;
 
-            return `${key} ${operator} $${idx + startIndex}`;
+            this.values.push(props.value);
+            return `${key} ${operator} $${index}`;
          }).join(' AND ');
       }
 
@@ -98,8 +103,15 @@ class QuerySQL {
 
       const sortEntries = Object.entries(sort);
       const parsed = sortEntries.map(([key, order]) => {
+         const table = this.database.getTable(this.tablePath);
+         const field = table && table.getField(key);
+
+         if (!field) {
+            return;
+         }
+
          return `${key} ${order.toUpperCase()}`;
-      });
+      }).filter(Boolean);
 
       this.sortClause = `ORDER BY ${parsed.join(', ')}`;
       return this;
@@ -116,7 +128,7 @@ class QuerySQL {
 
    async exec() {
       try {
-         const response = await this.database.pool.query(this.toString());
+         const response = await this.database.pool.query(this.toString(), this.values);
 
          return {
             success: true,
