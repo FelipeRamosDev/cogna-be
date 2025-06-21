@@ -97,6 +97,7 @@ class QuerySQL {
    }
 
    sort(sort = {}) {
+      const allowedOrders = ['ASC', 'DESC'];
       if (typeof sort !== 'object' || Object.keys(sort).length === 0) {
          return '';
       }
@@ -106,7 +107,7 @@ class QuerySQL {
          const table = this.database.getTable(this.tablePath);
          const field = table && table.getField(key);
 
-         if (!field) {
+         if (!field || !allowedOrders.includes(order.toUpperCase())) {
             return;
          }
 
