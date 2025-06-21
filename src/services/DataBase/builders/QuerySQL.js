@@ -20,7 +20,7 @@ class QuerySQL {
          throw new Error('Schema name and table name must be set before executing the query.');
       }
 
-      return `${this.schemaName}.${this.tableName}`;
+      return `${this.quoteIdentifier(this.schemaName)}.${this.quoteIdentifier(this.tableName)}`;
    }
 
    toString() {
@@ -33,6 +33,14 @@ class QuerySQL {
       ];
 
       return queryParts.filter(Boolean).join(' ');
+   }
+
+   quoteIdentifier(identifier) {
+      if (!/^[a-zA-Z0-9_]+$/.test(identifier)) {
+         throw new Error(`Invalid identifier: ${identifier}`);
+      }
+
+      return `${identifier}`;
    }
 
    select(fields = ['*']) {
