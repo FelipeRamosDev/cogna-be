@@ -140,7 +140,9 @@ class QuerySQL {
          return `${key} ${order.toUpperCase()}`;
       }).filter(Boolean);
 
-      this.sortClause = `ORDER BY ${parsed.join(', ')}`;
+      if (parsed.length) {
+         this.sortClause = `ORDER BY ${parsed.join(', ')}`;
+      }
       return this;
    }
 
