@@ -43,7 +43,7 @@ module.exports = async function(req, res) {
       };
 
       const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION || '24h' });
-      res.cookie('token', token, { httpOnly: true, secure: true });
+      res.cookie('token', token, { httpOnly: true, secure: false });
       res.status(201).send({ success: true, message: 'User registered successfully.', user });
    } catch (error) {
       const errror = API.toError({ code: 'INTERNAL_SERVER_ERROR', message: 'An internal server error occurred.' });

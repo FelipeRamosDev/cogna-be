@@ -68,7 +68,10 @@ class APIServer {
     * Initializes the API server by loading routes and starting the Express app.
     */
    async init() {
-      this.app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+      const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
+      const parsedCorsOrigin = corsOrigin.replace(/ /g, '').split(',');
+
+      this.app.use(cors({ origin: parsedCorsOrigin, credentials: true }));
       this.app.use(express.json());
       this.app.use(express.urlencoded({ extended: true }));
       this.app.use(cookieParser());

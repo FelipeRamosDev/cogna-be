@@ -31,7 +31,7 @@ module.exports = async function(req, res) {
       };
 
       const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION || '24h' });
-      res.cookie('token', token, { httpOnly: true, secure: true });
+      res.cookie('token', token, { httpOnly: true, secure: false });
 
       res.status(200).send({ success: true, user });
    } catch (error) {
