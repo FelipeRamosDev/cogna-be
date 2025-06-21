@@ -21,7 +21,7 @@ class DataBase {
          dbName = 'default-db',
          host = '0.0.0.0',
          password = '',
-         schemas = [],
+         schemas = new Map(),
          onReady = () => {}
       } = setup;
 
