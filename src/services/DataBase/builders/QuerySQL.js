@@ -45,7 +45,8 @@ class QuerySQL {
 
    select(fields = ['*']) {
       if (Array.isArray(fields) && fields.length) {
-         this.selectClause = `SELECT ${fields.join(', ')} FROM`;
+         const validatedFields = fields.map(field => this.charsVerifier(field));  
+         this.selectClause = `SELECT ${validatedFields.join(', ')} FROM`;
       } else {
          this.selectClause = 'SELECT * FROM';
       }
@@ -64,11 +65,19 @@ class QuerySQL {
    }
 
    schema(schemaName) {
+      if (typeof schemaName !== 'string') {  
+         throw this.database.toError('Schema name must be a string.');  
+      }
+
       this.schemaName = schemaName;
       return this;
    }
 
    table(tableName) {
+      if (typeof tableName !== 'string') {  
+         throw this.database.toError('Table name must be a string.');  
+      }
+
       this.tableName = tableName;
       return this;
    }
