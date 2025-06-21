@@ -20,7 +20,7 @@ class QuerySQL {
          throw new Error('Schema name and table name must be set before executing the query.');
       }
 
-      return `${this.quoteIdentifier(this.schemaName)}.${this.quoteIdentifier(this.tableName)}`;
+      return `${this.charsVerifier(this.schemaName)}.${this.charsVerifier(this.tableName)}`;
    }
 
    toString() {
@@ -35,12 +35,12 @@ class QuerySQL {
       return queryParts.filter(Boolean).join(' ');
    }
 
-   quoteIdentifier(identifier) {
+   charsVerifier(identifier) {
       if (!/^[a-zA-Z0-9_]+$/.test(identifier)) {
          throw new Error(`Invalid identifier: ${identifier}`);
       }
 
-      return `${identifier}`;
+      return identifier;
    }
 
    select(fields = ['*']) {
@@ -113,7 +113,12 @@ class QuerySQL {
          }).join(' AND ');
       }
 
-      this.whereClause = `WHERE ${result}`;
+      if (result) {
+         this.whereClause = `WHERE ${result}`;
+      } else {
+         this.whereClause = '';
+      }
+
       return this;
    }
 
