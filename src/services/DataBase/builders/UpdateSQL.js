@@ -62,7 +62,7 @@ class UpdateSQL extends SQL {
 
       const parsed = dataEntries.map((key, index) => {
          this.values.push(dataSet[key]);   
-         return `${key} = $${index + 1}`
+         return `${key} = $${this.values.length}`;
       });
 
       this.setClause = `SET ${parsed.join(', ')}`; 
