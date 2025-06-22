@@ -123,37 +123,35 @@ class QuerySQL {
       if (Array.isArray(conditions)) {
          // If conditions is an array, we assume it's a list of OR conditions
 
-         result = conditions.map((current, idx) => {
+         result = conditions.map((current) => {
             const [ key ] = Object.keys(current);
             const props = current[key];
-            const index = this.values.length + 1;
             
             if (!Array.isArray(props) && typeof props === 'object') {
                const operator = props.operator || '=';
 
                this.values.push(props.value);
-               return `${key} ${operator} $${index}`;
+               return `${key} ${operator} $${this.values.length}`;
             }
 
             this.values.push(props);
-            return `${key} = $${index}`;
+            return `${key} = $${this.values.length}`;
          }).join(' OR ');
       } else if (typeof conditions === 'object') {
          // If conditions is an object, we assume it's a list of AND conditions
 
-         result = Object.entries(conditions).map((current, idx) => {
+         result = Object.entries(conditions).map((current) => {
             const [key, props] = current;
-            const index = this.values.length + 1;
 
             if (!Array.isArray(props) && typeof props === 'object') {
                const operator = props.operator || '=';
 
                this.values.push(props.value);
-               return `${key} ${operator} $${index}`;
+               return `${key} ${operator} $${this.values.length}`;
             }
 
             this.values.push(props);
-            return `${key} = $${index}`;
+            return `${key} = $${this.values.length}`;
          }).join(' AND ');
       }
 
