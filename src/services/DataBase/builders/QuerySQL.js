@@ -10,6 +10,7 @@ class QuerySQL {
 
       this.whereClause = '';
       this.limitClause = '';
+      this.returningClause = 'RETURNING *';
       this.values = [];
    }
 
@@ -112,6 +113,19 @@ class QuerySQL {
       }
 
       this.limitClause = `LIMIT ${limit}`;
+      return this;
+   }
+
+   returning(columns = '*') {
+      if (typeof columns !== 'string' && !Array.isArray(columns)) {
+         throw new Error('Columns must be a string or an array of strings.');
+      }
+
+      if (Array.isArray(columns)) {
+         columns = columns.join(', ');
+      }
+
+      this.returningClause = `RETURNING ${columns}`;
       return this;
    }
 
