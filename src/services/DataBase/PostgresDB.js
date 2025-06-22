@@ -56,6 +56,15 @@ class PostgresDB extends DataBase {
       });
    }
 
+   /**
+    * Initializes the PostgresDB connection, creates schemas and tables if necessary,
+    * and sets up a test user. This method should be called after instantiating the class
+    * to ensure the database is ready for use.
+    *
+    * @async
+    * @throws {Object} Throws a standardized error object if the connection or initialization fails.
+    * @returns {Promise<void>} Resolves when the database is initialized and ready.
+    */
    async init() {
       if (!this.pool || !this.pool.connect) {
          throw this.toError('Database connection pool is not initialized.');
@@ -69,12 +78,22 @@ class PostgresDB extends DataBase {
 
          await this.onReady(this);
          await this.createTestUser();
+
          console.log('PostgresDB connected successfully');
+         return this;
       } catch (error) {
          throw this.toError('Failed to connect to PostgresDB: ' + error.message);
       }
    }
 
+   /**
+    * Creates a test user in the 'users_schema.users' table if it does not already exist.
+    * The test user will have the email 'test@test.com' and a default password.
+    * If the user already exists, no action is taken.
+    * Logs an error if user creation fails.
+    * @async
+    * @returns {Promise<void>}
+    */
    async createTestUser() {
       try {
          const userQuery = this.select('users_schema', 'users').where({ email: 'test@test.com' }).limit(1);
