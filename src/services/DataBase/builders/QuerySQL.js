@@ -8,9 +8,7 @@ class QuerySQL {
       this.schemaName = schemaName;
       this.tableName = tableName;
 
-      this.selectClause = 'SELECT * FROM';
       this.whereClause = '';
-      this.sortClause = '';
       this.limitClause = '';
       this.values = [];
    }
@@ -23,35 +21,12 @@ class QuerySQL {
       return `${this.charsVerifier(this.schemaName)}.${this.charsVerifier(this.tableName)}`;
    }
 
-   toString() {
-      const queryParts = [
-         this.selectClause,
-         this.tablePath,
-         this.whereClause,
-         this.sortClause,
-         this.limitClause
-      ];
-
-      return queryParts.filter(Boolean).join(' ');
-   }
-
    charsVerifier(identifier) {
       if (!/^[a-zA-Z0-9_]+$/.test(identifier)) {
          throw new Error(`Invalid identifier: ${identifier}`);
       }
 
       return identifier;
-   }
-
-   select(fields = ['*']) {
-      if (Array.isArray(fields) && fields.length) {
-         const validatedFields = fields.map(field => this.charsVerifier(field));  
-         this.selectClause = `SELECT ${validatedFields.join(', ')} FROM`;
-      } else {
-         this.selectClause = 'SELECT * FROM';
-      }
-
-      return this;
    }
 
    from(schemaName, tableName) {
@@ -128,30 +103,6 @@ class QuerySQL {
          this.whereClause = '';
       }
 
-      return this;
-   }
-
-   sort(sort = {}) {
-      const allowedOrders = ['ASC', 'DESC'];
-      if (typeof sort !== 'object' || Object.keys(sort).length === 0) {
-         return this;
-      }
-
-      const sortEntries = Object.entries(sort);
-      const parsed = sortEntries.map(([key, order]) => {
-         const table = this.database.getTable(this.tablePath);
-         const field = table && table.getField(key);
-
-         if (!field || !allowedOrders.includes(order.toUpperCase())) {
-            return;
-         }
-
-         return `${key} ${order.toUpperCase()}`;
-      }).filter(Boolean);
-
-      if (parsed.length) {
-         this.sortClause = `ORDER BY ${parsed.join(', ')}`;
-      }
       return this;
    }
 
