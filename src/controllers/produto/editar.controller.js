@@ -16,7 +16,7 @@ module.exports = async function(req, res) {
          throw updated;
       }
 
-      res.status(201).send({ success: true });
+      res.status(200).send({ success: true });
    } catch (error) {
       console.error('Error updating product:', error);
       const errorData = api.toError('Internal Server Error');
