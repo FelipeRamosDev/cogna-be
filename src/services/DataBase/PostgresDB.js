@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const DataBase = require('./DataBase');
 const GetQuerySQL = require('./builders/GetQuerySQL');
+const UpdateQuerySQL = require('./builders/UpdateQuerySQL');
 
 class PostgresDB extends DataBase {
    /**
@@ -286,23 +287,25 @@ class PostgresDB extends DataBase {
     * @param {object} data - Object with fields and values to update.
     * @returns {Promise<Array>} - Array of updated records.
     */
-   async update(schema_table, condition, data) {
-      const fields = Object.keys(data);
-      const values = Object.values(data);
-      const conditionsValues = this.getConditionValues(condition);
+   update(schemaName, tableName) {
+      // const fields = Object.keys(data);
+      // const values = Object.values(data);
+      // const conditionsValues = this.getConditionValues(condition);
 
-      // Build SET and WHERE clauses for SQL: "field1 = $1, field2 = $2, ..."
-      const setClause = this.buildSet(data);
-      const whereClause = this.buildWhere(condition, fields.length + 1);
+      // // Build SET and WHERE clauses for SQL: "field1 = $1, field2 = $2, ..."
+      // const setClause = this.buildSet(data);
+      // const whereClause = this.buildWhere(condition, fields.length + 1);
 
-      // The parameter for the WHERE clause comes after the fields to be updated
-      const sql = `UPDATE ${schema_table} SET ${setClause} WHERE ${whereClause} RETURNING *`;
+      // // The parameter for the WHERE clause comes after the fields to be updated
+      // const sql = `UPDATE ${schema_table} SET ${setClause} WHERE ${whereClause} RETURNING *`;
 
-      // Array of values: [...field values, ...condition values]
-      const params = [...values, ...conditionsValues];
+      // // Array of values: [...field values, ...condition values]
+      // const params = [...values, ...conditionsValues];
 
-      const result = await this.pool.query(sql, params);
-      return result.rows;
+      // const result = await this.pool.query(sql, params);
+      // return result.rows;
+
+      return new UpdateQuerySQL(this, schemaName, tableName);
    }
 
    /**
