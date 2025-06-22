@@ -286,7 +286,7 @@ class PostgresDB extends DataBase {
     * @param {object} data - Object with fields and values to update.
     * @returns {Promise<Array>} - Array of updated records.
     */
-   async update(schema_table, data, condition) {
+   async update(schema_table, condition, data) {
       const fields = Object.keys(data);
       const values = Object.values(data);
       const conditionsValues = this.getConditionValues(condition);
