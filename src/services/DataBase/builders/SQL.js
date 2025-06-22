@@ -138,14 +138,21 @@ class QuerySQL {
       try {
          const response = await this.database.pool.query(this.toString(), this.values);
 
+         if (!response || !response.rows) {
+            return this.database.toError('No data returned from the database.');
+         }
+
          return {
             success: true,
             data: response.rows || [],
             count: response.rowCount || 0
          }
       } catch (error) {
-         const errorData = this.database.toError('Error reading records from database: ' + error.message);
-         return errorData;
+         if (error.code === '22P02') { // Invalid text representation
+            error.code = 400; // Bad Request
+         }
+      
+         return this.database.toError(error);
       }
    }
 }
