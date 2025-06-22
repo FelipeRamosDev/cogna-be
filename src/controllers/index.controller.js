@@ -12,7 +12,7 @@ module.exports = async function(req, res) {
    
       res.status(200).send({
          success: true,
-         products: products.data || []
+         products: products || []
       });
    } catch (error) {
       res.status(500).send(api.toError('Internal server error'));

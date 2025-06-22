@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 const DataBase = require('./DataBase');
-const QuerySQL = require('./builders/QuerySQL');
+const GetQuerySQL = require('./builders/GetQuerySQL');
 
 class PostgresDB extends DataBase {
    /**
@@ -276,7 +276,7 @@ class PostgresDB extends DataBase {
    }
 
    query(schemaName, tableName) {
-      return new QuerySQL(this, schemaName, tableName);
+      return new GetQuerySQL(this, schemaName, tableName);
    }
 
    /**
