@@ -23,10 +23,13 @@ class UpdateQuerySQL extends QuerySQL {
    }
 
    set(dataSet = {}) {
-      const dataEntries = Object.keys(dataSet);
-
-      if (typeof dataSet !== 'object' || dataSet === null || !dataEntries.length) {
+      if (typeof dataSet !== 'object' || dataSet === null) {
          throw this.database.toError('Data set must be a non-null object.');
+      }
+
+      const dataEntries = Object.keys(dataSet);
+      if (!dataEntries.length) {
+         throw this.database.toError('Data set must contain at least one key-value pair.');
       }
 
       const parsed = dataEntries.map((key, index) => {
