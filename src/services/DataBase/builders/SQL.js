@@ -148,11 +148,12 @@ class QuerySQL {
             count: response.rowCount || 0
          }
       } catch (error) {
-         if (error.code === '22P02') { // Invalid text representation
-            error.code = 400; // Bad Request
+         let mappedError = error;
+         if (error.code === '22P02') {
+            mappedError = { ...error, code: 400 }; 
          }
       
-         return this.database.toError(error);
+         return this.database.toError(mappedError);
       }
    }
 }
