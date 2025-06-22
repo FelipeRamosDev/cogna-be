@@ -1,6 +1,6 @@
 const { Pool } = require('pg');
 const DataBase = require('./DataBase');
-const GetQuerySQL = require('./builders/GetQuerySQL');
+const SelectSQL = require('./builders/SelectSQL');
 
 class PostgresDB extends DataBase {
    /**
@@ -54,7 +54,7 @@ class PostgresDB extends DataBase {
 
    async createTestUser() {
       try {
-         const userQuery = this.query('users_schema', 'users').where({ email: 'test@test.com' }).limit(1);
+         const userQuery = this.select('users_schema', 'users').where({ email: 'test@test.com' }).limit(1);
          const { data: [ user ] } = await userQuery.exec();
 
          if (!user) {
@@ -79,7 +79,7 @@ class PostgresDB extends DataBase {
 
    async isConnected() {
       try {
-         const result = await this.pool.query('SELECT 1');
+         const result = await this.pool.select('SELECT 1');
          return Boolean(result.rowCount > 0);
       } catch (error) {
          this.toError('Error checking connection: ' + error.message);
@@ -170,7 +170,7 @@ class PostgresDB extends DataBase {
       const { name: schemaName, tables = new Map() } = schema;
 
       try {
-         await this.pool.query(schema.buildCreateSchemaQuery());
+         await this.pool.select(schema.buildCreateSchemaQuery());
       } catch (error) {
          this.toError('Error creating schema: ' + error.message);
          return;
@@ -275,8 +275,8 @@ class PostgresDB extends DataBase {
       }
    }
 
-   query(schemaName, tableName) {
-      return new GetQuerySQL(this, schemaName, tableName);
+   select(schemaName, tableName) {
+      return new SelectSQL(this, schemaName, tableName);
    }
 
    /**

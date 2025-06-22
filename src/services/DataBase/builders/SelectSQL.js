@@ -1,6 +1,6 @@
-const QuerySQL = require('./QuerySQL');
+const SQL = require('./SQL');
 
-class GetQuerySQL extends QuerySQL {
+class SelectSQL extends SQL {
    constructor(database, schemaName, tableName) {
       super(database, schemaName, tableName);
 
@@ -56,4 +56,4 @@ class GetQuerySQL extends QuerySQL {
    }
 }
 
-module.exports = GetQuerySQL;
+module.exports = SelectSQL;

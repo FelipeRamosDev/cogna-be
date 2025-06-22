@@ -3,7 +3,7 @@ module.exports = async function(req, res) {
    const api = this.getAPI();
 
    try {
-      const { success, data } = await db.query('products_schema', 'products').sort({ created_at: 'DESC' }).exec();
+      const { success, data } = await db.select('products_schema', 'products').sort({ created_at: 'DESC' }).exec();
       const products = data;
       if (!success) {
          res.status(404).send(api.toError('Error on products reading on database!'));
