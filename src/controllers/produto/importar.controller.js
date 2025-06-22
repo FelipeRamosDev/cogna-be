@@ -16,7 +16,7 @@ module.exports = function (req, res) {
          const products = JSON.parse(data);
 
          for (const product of products) {
-            const imported = await db.create('products_schema.products', product);
+            const imported = await db.insert('products_schema', 'products').data(product).exec();
 
             if (imported.error) {
                console.log('Error importing product:', imported);

@@ -26,8 +26,8 @@ describe('DataBase Class', () => {
       await expect(db.createSchema()).rejects.toThrow('Method createSchema is implemented in PostgresDB or MongoDB');
    });
 
-   it('should throw error for create()', async () => {
-      await expect(db.create()).rejects.toThrow('Method create is implemented in PostgresDB or MongoDB');
+   it('should throw error for insert()', async () => {
+      await expect(db.insert()).rejects.toThrow('Method insert is implemented in PostgresDB or MongoDB');
    });
 
    it('should throw error for read()', async () => {
