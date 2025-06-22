@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const DataBase = require('./DataBase');
 const SelectSQL = require('./builders/SelectSQL');
+const InsertSQL = require('./builders/InsertSQL');
 
 class PostgresDB extends DataBase {
    /**
@@ -61,12 +62,12 @@ class PostgresDB extends DataBase {
             const bcrypt = require('bcrypt');
             const hashedPassword = await bcrypt.hash('Test!123', 10);
 
-            const created = await this.create('users_schema.users', {
+            const created = await this.insert('users_schema', 'users').data({
                first_name: 'Test',
                last_name: 'User',
                password: hashedPassword,
                email: 'test@test.com'
-            });
+            }).exec();
 
             if (created.error) {
                throw created;
@@ -241,38 +242,8 @@ class PostgresDB extends DataBase {
       }
    }
 
-   /**
-    * Inserts a new record into a table.
-    * @param {string} tableName - Table name (with schema if needed).
-    * @param {object} data - Object with fields and values to insert.
-    * @returns {Promise<object>} - The inserted record.
-    */
-   async create(tableName, data) {
-      if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
-         throw this.toError('Invalid data provided for insert.');
-      }
-
-      const columns = Object.keys(data);
-      const values = Object.values(data);
-      const placeholders = columns.map((_, index) => `$${index + 1}`).join(', ');
-
-      const query = `
-         INSERT INTO ${tableName} (${columns.join(', ')})
-         VALUES (${placeholders})
-         RETURNING *;
-      `;
-
-      try {
-         const result = await this.pool.query(query, values);
-         return result.rows[0];
-      } catch (error) {
-         if (error.code === '22P02') { // Invalid text representation
-            error.code = 400; // Bad Request
-            return this.toError(error);
-         }
-
-         return this.toError(error);
-      }
+   insert(schemaName, tableName) {
+      return new InsertSQL(this, schemaName, tableName);
    }
 
    select(schemaName, tableName) {

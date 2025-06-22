@@ -81,21 +81,21 @@ describe('PostgresDB', () => {
       });
    });
 
-   describe('create', () => {
+   describe('insert', () => {
       it('should insert and return record', async () => {
          poolMock.query.mockResolvedValue({ rows: [{ id: 1, name: 'foo' }] });
-         const result = await db.create('table', { name: 'foo' });
+         const result = await db.insert('table').data({ name: 'foo' }).exec();
          expect(poolMock.query).toHaveBeenCalled();
          expect(result).toEqual({ id: 1, name: 'foo' });
       });
 
       it('should throw error for invalid data', async () => {
-         await expect(db.create('table', null)).rejects.toEqual(expect.objectContaining({ error: true }));
+         await expect(db.insert('table', null).exec()).rejects.toEqual(expect.objectContaining({ error: true }));
       });
 
       it('should return error object on query error', async () => {
          poolMock.query.mockRejectedValue(new Error('fail'));
-         const result = await db.create('table', { name: 'foo' });
+         const result = await db.insert('table').data({ name: 'foo' }).exec();
          expect(result).toEqual(expect.objectContaining({ error: true, message: 'fail' }));
       });
    });

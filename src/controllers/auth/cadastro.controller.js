@@ -25,12 +25,12 @@ module.exports = async function(req, res) {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await DB.create('users_schema.users', {
+      const user = await DB.insert('users_schema', 'users').data({
          first_name: firstName,
          last_name: lastName,
          email: email,
          password: hashedPassword
-      });
+      }).exec();
 
       if (user.error) {
          const error = API.toError({ status: 400, code: 'DB_ERROR', message: 'Error registering user.' });

@@ -26,7 +26,7 @@ const apiServer = new APIServer({
                const dummyProducts = require('./resources/dummy_products.json');
                
                for (const product of dummyProducts) {
-                  await database.create('products_schema.products', product);
+                  await database.insert('products_schema', 'products').data(product).exec();
                }
             }
          } catch (error) {
