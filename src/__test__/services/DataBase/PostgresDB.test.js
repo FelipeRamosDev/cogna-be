@@ -23,7 +23,7 @@ describe('PostgresDB', () => {
          schemas: [new Schema({ name: 'schema', tables: [{ name: 'table', fields: [] }] })]
       });
       poolMock = db.pool;
-      poolMock.select.mockReset();
+      poolMock.query.mockReset();
    });
 
    describe('constructor', () => {
@@ -41,69 +41,31 @@ describe('PostgresDB', () => {
       });
    });
 
-   describe('buildWhere', () => {
-      it('should build AND where clause from object', () => {
-         const cond = { id: { value: 1 }, name: { value: 'foo', operator: 'LIKE' } };
-         expect(db.buildWhere(cond)).toBe('id = $1 AND name LIKE $2');
-      });
-
-      it('should build OR where clause from array', () => {
-         const cond = [
-            ['id', { value: 1 }],
-            ['name', { value: 'foo', operator: 'LIKE' }]
-         ];
-         expect(db.buildWhere(cond)).toBe('id = $1 OR name LIKE $2');
-      });
-
-      it('should return empty string for empty input', () => {
-         expect(db.buildWhere()).toBe('');
-      });
-   });
-
-   describe('buildSet', () => {
-      it('should build SET clause', () => {
-         expect(db.buildSet({ a: 1, b: 2 })).toBe('a = $1, b = $2');
-      });
-      it('should return empty string for empty object', () => {
-         expect(db.buildSet({})).toBe('');
-      });
-   });
-
-   describe('getConditionValues', () => {
-      it('should extract values from object', () => {
-         expect(db.getConditionValues({ a: { value: 1 }, b: { value: 2 } })).toEqual([1, 2]);
-      });
-      it('should extract values from array', () => {
-         expect(db.getConditionValues([['a', { value: 1 }], ['b', { value: 2 }]])).toEqual([1, 2]);
-      });
-      it('should return empty array for invalid input', () => {
-         expect(db.getConditionValues(null)).toEqual([]);
-      });
-   });
-
    describe('insert', () => {
       it('should insert and return record', async () => {
          poolMock.query.mockResolvedValue({ rows: [{ id: 1, name: 'foo' }] });
-         const result = await db.insert('table').data({ name: 'foo' }).exec();
+         const { data } = await db.insert('schema', 'table').data({ name: 'foo' }).exec();
+         const [result] = data;
          expect(poolMock.query).toHaveBeenCalled();
          expect(result).toEqual({ id: 1, name: 'foo' });
       });
 
       it('should throw error for invalid data', async () => {
-         await expect(db.insert('table', null).exec()).rejects.toEqual(expect.objectContaining({ error: true }));
+         const result = await db.insert('schema', 'table', null).exec();
+         await expect(result).toEqual({"code": 500, "error": true, "message": "No data returned from the database."});
       });
 
       it('should return error object on query error', async () => {
          poolMock.query.mockRejectedValue(new Error('fail'));
-         const result = await db.insert('table').data({ name: 'foo' }).exec();
+         const result = await db.insert('schema', 'table').data({ name: 'foo' }).exec();
          expect(result).toEqual(expect.objectContaining({ error: true, message: 'fail' }));
       });
    });
 
-   describe('read', () => {
+   describe('select', () => {
       it('should select and return rows', async () => {
          poolMock.query.mockResolvedValue({ rows: [{ id: 1 }] });
-         const { data } = await db.query('schema', 'table').where({ id: 1 }).exec();
+         const { data } = await db.select('schema', 'table').where({ id: 1 }).exec();
          const result = data;
          expect(poolMock.query).toHaveBeenCalled();
          expect(result).toEqual([{ id: 1 }]);
@@ -111,39 +73,41 @@ describe('PostgresDB', () => {
 
       it('should return empty array on error', async () => {
          poolMock.query.mockRejectedValue(new Error('fail'));
-         const res = await db.query('schema', 'table').where({ id: 1 }).exec();
+         const res = await db.select('schema', 'table').where({ id: 1 }).exec();
 
          expect(res).toHaveProperty('error', true);
-         expect(res).toHaveProperty('message', 'Error reading records from database: fail');
+         expect(res).toHaveProperty('message', 'fail');
       });
    });
 
    describe('update', () => {
       it('should update and return rows', async () => {
          poolMock.query.mockResolvedValue({ rows: [{ id: 1, name: 'bar' }] });
-         const result = await db.update('table', { id: { value: 1 } }, { name: 'bar' });
+         const result = await db.update('schema', 'table').set({ name: 'bar' }).where({ id: 1 }).exec();
          expect(poolMock.query).toHaveBeenCalled();
-         expect(result).toEqual([{ id: 1, name: 'bar' }]);
+         expect(result.data).toEqual([{ id: 1, name: 'bar' }]);
       });
    });
 
    describe('delete', () => {
       it('should delete and return rows', async () => {
          poolMock.query.mockResolvedValue({ rows: [{ id: 1 }] });
-         const result = await db.delete('table', { id: { value: 1 } });
+         const result = await db.delete('schema', 'table').where({ id: 1 }).exec();
          expect(poolMock.query).toHaveBeenCalled();
-         expect(result).toEqual([{ id: 1 }]);
+         expect(result.data).toEqual([{ id: 1 }]);
       });
 
       it('should return undefined if no where clause', async () => {
-         const result = await db.delete('table', {});
-         expect(result).toBeUndefined();
+         const result = await db.delete('schema', 'table').where({}).exec();
+         expect(result).toHaveProperty('error', true);
+         expect(result).toHaveProperty('message', 'Where clause is required for delete queries unless allowNullWhere is set.');
       });
 
       it('should return undefined on query error', async () => {
          poolMock.query.mockRejectedValue(new Error('fail'));
-         const result = await db.delete('table', { id: { value: 1 } });
-         expect(result).toBeUndefined();
+         const result = await db.delete('schema', 'table').where({ id: 1 }).exec();
+         expect(result).toHaveProperty('error', true);
+         expect(result).toHaveProperty('message', 'fail');
       });
    });
 

@@ -71,7 +71,7 @@ class DataBase {
       throw new Error('Method create is implemented in PostgresDB or MongoDB');
    }
 
-   async query() {
+   async select() {
       throw new Error('Method read is implemented in PostgresDB or MongoDB');
    }
 
