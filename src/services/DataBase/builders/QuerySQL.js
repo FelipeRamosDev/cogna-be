@@ -30,6 +30,11 @@ class QuerySQL {
       return identifier;
    }
 
+   allowNullWhere() {
+      this.isAllowedNullWhere = true;
+      return this;
+   }
+
    from(schemaName, tableName) {
       if (typeof schemaName !== 'string' || typeof tableName !== 'string') {
          throw this.database.toError('Schema name and table name must be strings.');
