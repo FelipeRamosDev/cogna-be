@@ -2,6 +2,8 @@ const { Pool } = require('pg');
 const DataBase = require('./DataBase');
 const SelectSQL = require('./builders/SelectSQL');
 const InsertSQL = require('./builders/InsertSQL');
+const UpdateSQL = require('./builders/UpdateSQL');
+const DeleteSQL = require('./builders/DeleteSQL');
 
 class PostgresDB extends DataBase {
    /**
@@ -80,7 +82,7 @@ class PostgresDB extends DataBase {
 
    async isConnected() {
       try {
-         const result = await this.pool.select('SELECT 1');
+         const result = await this.pool.query('SELECT 1');
          return Boolean(result.rowCount > 0);
       } catch (error) {
          this.toError('Error checking connection: ' + error.message);
@@ -94,75 +96,6 @@ class PostgresDB extends DataBase {
    }
 
    /**
-    * Builds a SQL WHERE clause from conditions.
-    * Supports both AND (object) and OR (array) conditions.
-    * @param {object|array} conditions - Conditions for the WHERE clause.
-    * @param {number} [startIndex=1] - Starting index for parameter placeholders.
-    * @returns {string} - SQL WHERE clause.
-    */
-   buildWhere(conditions = {}, startIndex = 1) {
-      let result = '';
-
-      if (Array.isArray(conditions)) {
-         // If conditions is an array, we assume it's a list of OR conditions
-
-         result = conditions.map((current, idx) => {
-            const [key, props] = current;
-            const operator = props.operator || '=';
-
-            return `${key} ${operator} $${idx + startIndex}`;
-         }).join(' OR ');
-      } else if (typeof conditions === 'object') {
-         // If conditions is an object, we assume it's a list of AND conditions
-
-         result = Object.entries(conditions).map((current, idx) => {
-            const [key, props] = current;
-            const operator = props.operator || '=';
-
-            return `${key} ${operator} $${idx + startIndex}`;
-         }).join(' AND ');
-      }
-
-      return result;
-   }
-
-   /**
-    * Builds a SQL SET clause for updates.
-    * @param {object} data - Fields to update.
-    * @returns {string} - SQL SET clause.
-    */
-   buildSet(data = {}) {
-      const dataEntries = Object.keys(data);
-
-      if (dataEntries.length === 0) {
-         return '';
-      }
-
-      const parsed = dataEntries.map((key, index) => `${key} = $${index + 1}`);
-      return parsed.join(', ');
-   }
-
-   /**
-    * Extracts values from condition objects for parameterized queries.
-    * @param {object} conditions - Condition object.
-    * @returns {array} - Array of values.
-    */
-   getConditionValues(conditions = {}) {
-      if (Array.isArray(conditions)) {
-         // Array of OR conditions: each entry is [key, { value, operator }]
-         return conditions.map(([_, props]) => props.value);
-      } else if (typeof conditions === 'object' && conditions !== null) {
-         // Object of AND conditions: { key: { value, operator } }
-         return Object.keys(conditions).map((key) => {
-            const props = conditions[key];
-            return props.value;
-         });
-      } else {
-         return [];
-      }
-   }
-
-   /**
     * Creates a schema and optionally tables if they do not exist.
     * @param {string} schemaName - Name of the schema.
     * @param {Array} tables - Array of table definitions ({ name, fields }).
@@ -171,7 +104,7 @@ class PostgresDB extends DataBase {
       const { name: schemaName, tables = new Map() } = schema;
 
       try {
-         await this.pool.select(schema.buildCreateSchemaQuery());
+         await this.pool.query(schema.buildCreateSchemaQuery());
       } catch (error) {
          this.toError('Error creating schema: ' + error.message);
          return;
@@ -250,58 +183,12 @@ class PostgresDB extends DataBase {
       return new SelectSQL(this, schemaName, tableName);
    }
 
-   /**
-    * Updates records in a table based on conditions.
-    * @param {string} schema_table - Table name (with schema).
-    * @param {object} condition - Conditions for the WHERE clause. An array of conditions can be used for OR logic. If an object is provided, it will be treated as AND conditions.
-    * @param {object} data - Object with fields and values to update.
-    * @returns {Promise<Array>} - Array of updated records.
-    */
-   async update(schema_table, condition, data) {
-      const fields = Object.keys(data);
-      const values = Object.values(data);
-      const conditionsValues = this.getConditionValues(condition);
-
-      // Build SET and WHERE clauses for SQL: "field1 = $1, field2 = $2, ..."
-      const setClause = this.buildSet(data);
-      const whereClause = this.buildWhere(condition, fields.length + 1);
-
-      // The parameter for the WHERE clause comes after the fields to be updated
-      const sql = `UPDATE ${schema_table} SET ${setClause} WHERE ${whereClause} RETURNING *`;
-
-      // Array of values: [...field values, ...condition values]
-      const params = [...values, ...conditionsValues];
-
-      const result = await this.pool.query(sql, params);
-      return result.rows;
+   update(schemaName, tableName) {
+      return new UpdateSQL(this, schemaName, tableName);
    }
 
-   /**
-    * Deletes records from a table based on conditions.
-    * @param {string} tableName - Table name (with schema if needed).
-    * @param {object|array} conditions - Conditions for the WHERE clause. An array of conditions can be used for OR logic. If an object is provided, it will be treated as AND conditions.
-    * @returns {Promise<Array>} - Array of deleted records.
-    */
-   async delete(tableName, conditions) {
-      const whereClause = this.buildWhere(conditions);
-      if (!whereClause) {
-         this.toError('No conditions provided for delete.');
-         return;
-      }
-
-      const query = `
-         DELETE FROM ${tableName}
-         ${whereClause ? `WHERE ${whereClause}` : ''}
-         RETURNING *;
-      `;
-
-      try {
-         const values = this.getConditionValues(conditions);
-         const result = await this.pool.query(query, values);
-         return result.rows;
-      } catch (error) {
-         this.toError('Error deleting record from database: ' + error.message);
-      }
+   delete(schemaName, tableName) {
+      return new DeleteSQL(this, schemaName, tableName);
    }
 
    toError(error, code = 500) {
