@@ -49,16 +49,25 @@ class Route {
       this.setRoute();
    }
 
+   /**
+    * Returns the current API server instance associated with this route.
+    * @returns {Object} The API server instance.
+    */
    get apiServer() {
       return this._apiServer();
    }
 
+   /**
+    * Sets the API server instance for this route.
+    * @param {Object} apiServer - The API server instance.
+    */
    setApiServer(apiServer) {
       this._apiServer = () => apiServer;
    }
 
    /**
     * Registers the route on the shared router instance.
+    * Uses the HTTP method, path, middlewares, and controller.
     */
    setRoute() {
       const method = this.method.toLowerCase();

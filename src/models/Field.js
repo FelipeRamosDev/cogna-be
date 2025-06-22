@@ -1,6 +1,7 @@
 /**
  * Field class represents a field in a database model.
- * It initializes with a key, type, and optional properties like notNull, unique, defaultValue, and autoIncrement.
+ * It initializes with a key, type, and optional properties like notNull, unique, defaultValue, primaryKey, and autoIncrement.
+ * Provides a method to generate the SQL definition for the field.
  *
  * @class Field
  * @param {Object} setup - The setup object for the field.
@@ -11,9 +12,13 @@
  * @param {boolean} [setup.unique=false] - Whether the field must be unique.
  * @param {boolean} [setup.primaryKey=false] - Whether the field is a primary key.
  * @param {boolean} [setup.autoIncrement=false] - Whether the field is auto-incrementing.
- * @throws {Error} If key or type is not provided or is not a string.
+ * @throws {Error} If name or type is not provided or is not a string.
  */
 class Field {
+   /**
+    * Creates a new Field instance.
+    * @param {Object} setup - The setup object for the field.
+    */
    constructor(setup = {}) {
       const {
          name,
@@ -38,6 +43,10 @@ class Field {
       this.autoIncrement = Boolean(autoIncrement);
    }
 
+   /**
+    * Builds the SQL definition string for this field, including type and constraints.
+    * @returns {string} The SQL definition for the field.
+    */
    buildDefinitionSQL() {
       const constraints = [];
 

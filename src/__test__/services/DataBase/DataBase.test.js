@@ -18,7 +18,7 @@ describe('DataBase Class', () => {
       expect(db.dbName).toBe('test-db');
       expect(db.host).toBe('localhost');
       expect(db.password).toBe('1234');
-      expect(db.schemas).toEqual([schema]);
+      expect(db.schemas).toEqual(new Map([[schema.name, schema]]));
       expect(db.pool).toBeNull();
    });
 
@@ -26,12 +26,8 @@ describe('DataBase Class', () => {
       await expect(db.createSchema()).rejects.toThrow('Method createSchema is implemented in PostgresDB or MongoDB');
    });
 
-   it('should throw error for create()', async () => {
-      await expect(db.create()).rejects.toThrow('Method create is implemented in PostgresDB or MongoDB');
-   });
-
    it('should throw error for read()', async () => {
-      await expect(db.read()).rejects.toThrow('Method read is implemented in PostgresDB or MongoDB');
+      await expect(db.select()).rejects.toThrow('Method read is implemented in PostgresDB or MongoDB');
    });
 
    it('should throw error for update()', async () => {

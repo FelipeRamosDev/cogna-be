@@ -7,7 +7,7 @@ module.exports = async function(req, res) {
    }
 
    try {
-      const newProduct = await db.create('products_schema.products', productData);
+      const newProduct = await db.insert('products_schema', 'products').data(productData).exec();
       if (newProduct.error) {
          return res.status(newProduct.code || 500).send(newProduct);
       }

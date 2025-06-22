@@ -68,7 +68,10 @@ class APIServer {
     * Initializes the API server by loading routes and starting the Express app.
     */
    async init() {
-      this.app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+      const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
+      const parsedCorsOrigin = corsOrigin.replace(/ /g, '').split(',');
+
+      this.app.use(cors({ origin: parsedCorsOrigin, credentials: true }));
       this.app.use(express.json());
       this.app.use(express.urlencoded({ extended: true }));
       this.app.use(cookieParser());
@@ -152,6 +155,37 @@ class APIServer {
       });
 
       return fileList;
+   }
+
+   /**
+    * Maps an error or error object to a standardized error response.
+    * @param {string|Object} error - The error message or error object.
+    * @returns {Object} The standardized error response object.
+    */
+   toError(error) {
+      if (typeof error === 'string') {
+         return {
+            error: true,
+            status: 500,
+            message: error,
+            code: 'INTERNAL_SERVER_ERROR'
+         }
+      } else if (!Array.isArray(error) && typeof error === 'object') {
+         return {
+            error: true,
+            status: error.status || 500,
+            message: error.message || 'Internal server error',
+            code: error.code || 'INTERNAL_SERVER_ERROR',
+            data: error
+         }
+      }
+
+      return {
+         error: true,
+         status: 500,
+         message: 'Unknown error',
+         code: 'INTERNAL_SERVER_ERROR'
+      }
    }
 }
 

@@ -3,21 +3,26 @@ const jwt = require('jsonwebtoken');
 
 module.exports = async function(req, res) {
    const DB = this.getDataBase();
+   const api = this.getAPI();
    const { email, password } = req.body;
 
    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+      const error = api.toError({ status: 400, code: 'REQUIRED_PARAMS', message: 'Email and password are required!' });
+      return res.status(error.status).send(error);
    }
 
    try {
-      const [ user ] = await DB.read('users_schema.users', { email: { condition: '=', value: email } });
+      const { data } = await DB.select('users_schema', 'users').where({ email }).exec();
+      const [ user ] = data; // Assuming the query returns an array of users
       if (!user) {
-         return res.status(400).json({ message: 'Invalid email!' });
+         const error = api.toError({ status: 400, code: 'INVALID_PARAM', message: 'Invalid email!' });
+         return res.status(error.status).send(error);
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-         return res.status(400).json({ message: 'Invalid password!' });
+         const error = api.toError({ status: 400, code: 'PASSWORD_MISMATCH', message: 'Invalid password!' });
+         return res.status(error.status).send(error);
       }
 
       req.session.user = {
@@ -27,11 +32,11 @@ module.exports = async function(req, res) {
       };
 
       const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION || '24h' });
-      res.cookie('token', token, { httpOnly: true, secure: true });
+      res.cookie('token', token, { httpOnly: true, secure: false });
 
-      res.status(200).json({ success: true, user });
+      res.status(200).send({ success: true, user });
    } catch (error) {
-      console.error('Error in login controller:', error);
-      res.status(500).json({ message: 'Internal server error' });
+         console.error(error)
+      res.status(500).send(api.toError());
    }
 }
