@@ -1,6 +1,6 @@
-const QuerySQL = require('./QuerySQL');
+const SQL = require('./SQL');
 
-class UpdateQuerySQL extends QuerySQL {
+class UpdateSQL extends SQL {
    constructor (database, schemaName, tableName) {
       super(database, schemaName, tableName);
       
@@ -42,4 +42,4 @@ class UpdateQuerySQL extends QuerySQL {
    }
 }
 
-module.exports = UpdateQuerySQL;
+module.exports = UpdateSQL;

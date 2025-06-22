@@ -1,6 +1,6 @@
-const QuerySQL = require('./QuerySQL');
+const SQL = require('./SQL');
 
-class DeleteQuerySQL extends QuerySQL {
+class DeleteSQL extends SQL {
    constructor(database, schemaName, tableName) {
       super(database, schemaName, tableName);
 
@@ -24,4 +24,4 @@ class DeleteQuerySQL extends QuerySQL {
    }
 }
 
-module.exports = DeleteQuerySQL;
+module.exports = DeleteSQL;

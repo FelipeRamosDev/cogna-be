@@ -23,7 +23,7 @@ describe('PostgresDB', () => {
          schemas: [new Schema({ name: 'schema', tables: [{ name: 'table', fields: [] }] })]
       });
       poolMock = db.pool;
-      poolMock.query.mockReset();
+      poolMock.select.mockReset();
    });
 
    describe('constructor', () => {

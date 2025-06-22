@@ -12,7 +12,7 @@ module.exports = async function(req, res) {
    }
 
    try {
-      const { data } = await DB.query('users_schema', 'users').where({ email }).exec();
+      const { data } = await DB.select('users_schema', 'users').where({ email }).exec();
       const [ user ] = data; // Assuming the query returns an array of users
       if (!user) {
          const error = api.toError({ status: 400, code: 'INVALID_PARAM', message: 'Invalid email!' });

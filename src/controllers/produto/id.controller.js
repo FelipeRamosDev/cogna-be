@@ -8,7 +8,7 @@ module.exports = async function (req, res) {
    }
 
    try {
-      const { data } = await db.query('products_schema', 'products').where({ id: productID }).exec();
+      const { data } = await db.select('products_schema', 'products').where({ id: productID }).exec();
       const products = data;
       if (!products.length) {
          res.status(404).send({ error: true, message: 'Product not found.' });

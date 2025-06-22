@@ -19,7 +19,7 @@ const apiServer = new APIServer({
       ],
       onReady: async (database) => {
          try {
-            const { data } = await database.query('products_schema', 'products').limit(1).exec();
+            const { data } = await database.select('products_schema', 'products').limit(1).exec();
             const products = data;
 
             if (!products.length) {
