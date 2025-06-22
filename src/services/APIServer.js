@@ -157,6 +157,11 @@ class APIServer {
       return fileList;
    }
 
+   /**
+    * Maps an error or error object to a standardized error response.
+    * @param {string|Object} error - The error message or error object.
+    * @returns {Object} The standardized error response object.
+    */
    toError(error) {
       if (typeof error === 'string') {
          return {

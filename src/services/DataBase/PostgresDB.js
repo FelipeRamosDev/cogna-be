@@ -5,6 +5,26 @@ const InsertSQL = require('./builders/InsertSQL');
 const UpdateSQL = require('./builders/UpdateSQL');
 const DeleteSQL = require('./builders/DeleteSQL');
 
+/**
+ * PostgresDB is a database adapter for PostgreSQL, extending the base DataBase class.
+ * It provides methods for schema/table management, user creation, and query building (select, insert, update, delete).
+ *
+ * Key Features:
+ * - Connection pooling and initialization
+ * - Schema and table creation/synchronization
+ * - Test user creation for development
+ * - Query builder methods for SELECT, INSERT, UPDATE, DELETE
+ * - Error mapping and handling utilities
+ *
+ * @class PostgresDB
+ * @extends DataBase
+ * @param {object} setup - Configuration object for the database connection.
+ * @param {string} [setup.user='postgres'] - Database user.
+ * @param {number} [setup.port=5432] - Database port.
+ * @param {string} [setup.dbName] - Database name (inherited).
+ * @param {string} [setup.host] - Database host (inherited).
+ * @param {string} [setup.password] - Database password (inherited).
+ */
 class PostgresDB extends DataBase {
    /**
     * Initializes a new PostgresDB instance and connects to the PostgresSQL database.
@@ -80,6 +100,10 @@ class PostgresDB extends DataBase {
       }
    }
 
+   /**
+    * Checks if the database connection is active.
+    * @returns {Promise<boolean>} True if connected, false otherwise.
+    */
    async isConnected() {
       try {
          const result = await this.pool.query('SELECT 1');
@@ -91,6 +115,10 @@ class PostgresDB extends DataBase {
       }
    }
 
+   /**
+    * Returns an array of schema objects managed by this database instance.
+    * @returns {Array} Array of schema objects.
+    */
    getSchemasArray() {
       return Array.from(this.schemas.values());
    }
@@ -175,22 +203,52 @@ class PostgresDB extends DataBase {
       }
    }
 
+   /**
+    * Returns a new InsertSQL query builder for the given schema and table.
+    * @param {string} schemaName - Schema name.
+    * @param {string} tableName - Table name.
+    * @returns {InsertSQL}
+    */
    insert(schemaName, tableName) {
       return new InsertSQL(this, schemaName, tableName);
    }
 
+   /**
+    * Returns a new SelectSQL query builder for the given schema and table.
+    * @param {string} schemaName - Schema name.
+    * @param {string} tableName - Table name.
+    * @returns {SelectSQL}
+    */
    select(schemaName, tableName) {
       return new SelectSQL(this, schemaName, tableName);
    }
 
+   /**
+    * Returns a new UpdateSQL query builder for the given schema and table.
+    * @param {string} schemaName - Schema name.
+    * @param {string} tableName - Table name.
+    * @returns {UpdateSQL}
+    */
    update(schemaName, tableName) {
       return new UpdateSQL(this, schemaName, tableName);
    }
 
+   /**
+    * Returns a new DeleteSQL query builder for the given schema and table.
+    * @param {string} schemaName - Schema name.
+    * @param {string} tableName - Table name.
+    * @returns {DeleteSQL}
+    */
    delete(schemaName, tableName) {
       return new DeleteSQL(this, schemaName, tableName);
    }
 
+   /**
+    * Maps an error or error message to a standardized error object.
+    * @param {string|Object} error - The error message or error object.
+    * @param {number} [code=500] - The error code.
+    * @returns {Object} The standardized error object.
+    */
    toError(error, code = 500) {
       if (typeof error === 'string') {
          return {
