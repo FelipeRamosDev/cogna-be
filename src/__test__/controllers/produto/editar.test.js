@@ -1,10 +1,17 @@
 const request = require('supertest');
 
 describe('POST /produto/editar', () => {
-   let apiServer
+   let apiServer;
+   let authCookie;
    
    beforeAll(async () => {
       apiServer = await require('../../../app');
+      
+      const loginResponse = await request(apiServer.app)
+         .post('/auth/login')
+         .send({ email: 'test@test.com', password: 'Test!123' });
+
+      authCookie = loginResponse.headers['set-cookie'];
    });
 
    it('should update a product successfully with valid data', async () => {
@@ -19,6 +26,7 @@ describe('POST /produto/editar', () => {
 
       const response = await request(apiServer.app)
          .post('/produto/editar')
+         .set('Cookie', authCookie)
          .send(updateData);
 
       expect(response.statusCode).toBe(201);
@@ -28,6 +36,7 @@ describe('POST /produto/editar', () => {
    it('should return 400 if id or data is missing', async () => {
       const response = await request(apiServer.app)
          .post('/produto/editar')
+         .set('Cookie', authCookie)
          .send({});
 
       expect(response.statusCode).toBe(400);
@@ -45,6 +54,7 @@ describe('POST /produto/editar', () => {
 
       const response = await request(apiServer.app)
          .post('/produto/editar')
+         .set('Cookie', authCookie)
          .send(invalidData);
 
       expect(response.statusCode).toBe(400);
