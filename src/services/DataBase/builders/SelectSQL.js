@@ -1,6 +1,22 @@
 const SQL = require('./SQL');
 
+/**
+ * SelectSQL is a query builder for SELECT statements, extending the base SQL builder.
+ * Provides a fluent interface for building SELECT queries with sorting, limiting, and field selection.
+ *
+ * @class SelectSQL
+ * @extends SQL
+ * @param {Object} database - The database instance with a pool.query method.
+ * @param {string} schemaName - The schema name for the table.
+ * @param {string} tableName - The table name.
+ */
 class SelectSQL extends SQL {
+   /**
+    * @constructor
+    * @param {Object} database - The database instance with a pool.query method.
+    * @param {string} schemaName - The schema name for the table.
+    * @param {string} tableName - The table name.
+    */
    constructor(database, schemaName, tableName) {
       super(database, schemaName, tableName);
 
@@ -8,6 +24,10 @@ class SelectSQL extends SQL {
       this.sortClause = '';
    }
 
+   /**
+    * Builds the SQL SELECT query string from the current state.
+    * @returns {string} The SQL query string.
+    */
    toString() {
       const queryParts = [
          this.selectClause,
@@ -20,6 +40,11 @@ class SelectSQL extends SQL {
       return queryParts.filter(Boolean).join(' ');
    }
 
+   /**
+    * Sets the fields to select in the query.
+    * @param {string[]} [fields=['*']] - The fields to select.
+    * @returns {SelectSQL}
+    */
    select(fields = ['*']) {
       if (Array.isArray(fields) && fields.length) {
          const validatedFields = fields.map(field => this.charsVerifier(field));  
@@ -31,6 +56,11 @@ class SelectSQL extends SQL {
       return this;
    }
 
+   /**
+    * Adds an ORDER BY clause to the query.
+    * @param {Object} sort - An object where keys are field names and values are 'ASC' or 'DESC'.
+    * @returns {SelectSQL}
+    */
    sort(sort = {}) {
       const allowedOrders = ['ASC', 'DESC'];
       if (typeof sort !== 'object' || Object.keys(sort).length === 0) {
@@ -56,4 +86,7 @@ class SelectSQL extends SQL {
    }
 }
 
+/**
+ * Exports the SelectSQL class for use as a SELECT query builder.
+ */
 module.exports = SelectSQL;
