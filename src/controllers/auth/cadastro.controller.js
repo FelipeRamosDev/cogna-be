@@ -3,32 +3,38 @@ const jwt = require('jsonwebtoken');
 
 module.exports = async function(req, res) {
    const DB = this.getDataBase();
+   const API = this.getAPI();
    const { firstName, lastName, email, password, confirmPassword } = req.body;
 
    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      return res.status(400).send({ error: true, message: 'All fields are required.' });
+      const error = API.toError({ status: 400, code: 'REQUIRED_PARAMS', message: 'All fields are required.' });
+      return res.status(error.status).send(error);
    }
 
    if (password !== confirmPassword) {
-      return res.status(400).send({ error: true, message: 'Passwords do not match.' });
+      const error = API.toError({ status: 400, code: 'PASSWORD_MISMATCH', message: 'Passwords do not match.' });
+      return res.status(error.status).send(error);
    }
 
    try {
-      const userExists = await DB.read('users_schema.users', { email: { condition: '=', value: email } });
+      const { data } = await DB.select('users_schema', 'users').where({ email }).exec();
+      const userExists = data;
       if (userExists.length) {
-         return res.status(400).send({ error: true, message: 'Email already exists.' });
+         const error = API.toError({ status: 400, code: 'EMAIL_EXISTS', message: 'Email already exists.' });
+         return res.status(error.status).send(error);
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await DB.create('users_schema.users', {
+      const user = await DB.insert('users_schema', 'users').data({
          first_name: firstName,
          last_name: lastName,
          email: email,
          password: hashedPassword
-      });
+      }).exec();
 
       if (user.error) {
-         return res.status(400).send({ error: true, message: 'Error registering user.' });
+         const error = API.toError({ status: 400, code: 'DB_ERROR', message: 'Error registering user.' });
+         return res.status(error.status).send(error);
       }
 
       req.session.user = {
@@ -38,10 +44,10 @@ module.exports = async function(req, res) {
       };
 
       const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION || '24h' });
-      res.cookie('token', token, { httpOnly: true, secure: true });
+      res.cookie('token', token, { httpOnly: true, secure: false });
       res.status(201).send({ success: true, message: 'User registered successfully.', user });
    } catch (error) {
-      console.error('Internal server error:', error);
-      res.status(500).send({ error: true, message: 'An internal server error occurred.' });
+      const errror = API.toError({ code: 'INTERNAL_SERVER_ERROR', message: 'An internal server error occurred.' });
+      res.status(errror.status).send(errror);
    }  
 }

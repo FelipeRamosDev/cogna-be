@@ -85,6 +85,9 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
 #### **Criação dos testes Jest:** 
    Foram criados testes automatizados com Jest para controllers, models e endpoints. Os testes podem ser executados localmente com `npm run test` e também rodam automaticamente no CI.
 
+#### Teste a aplicação na nuvem
+Você pode acessar a aplicação hospedada na nuvem através do seguinte link: [Teste rodando na nuvem](http://91.99.8.161:3000/).
+- Como está sem SSL, pode ser necessário aceitar o aviso de segurança do navegador.
 
 ### Endpoints Disponíveis
 - `GET /`: Retorna a lista de produtos.

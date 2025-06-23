@@ -1,6 +1,30 @@
-const DataBase = require('./DataBase');
 const { Pool } = require('pg');
+const DataBase = require('./DataBase');
+const SelectSQL = require('./builders/SelectSQL');
+const InsertSQL = require('./builders/InsertSQL');
+const UpdateSQL = require('./builders/UpdateSQL');
+const DeleteSQL = require('./builders/DeleteSQL');
 
+/**
+ * PostgresDB is a database adapter for PostgreSQL, extending the base DataBase class.
+ * It provides methods for schema/table management, user creation, and query building (select, insert, update, delete).
+ *
+ * Key Features:
+ * - Connection pooling and initialization
+ * - Schema and table creation/synchronization
+ * - Test user creation for development
+ * - Query builder methods for SELECT, INSERT, UPDATE, DELETE
+ * - Error mapping and handling utilities
+ *
+ * @class PostgresDB
+ * @extends DataBase
+ * @param {object} setup - Configuration object for the database connection.
+ * @param {string} [setup.user='postgres'] - Database user.
+ * @param {number} [setup.port=5432] - Database port.
+ * @param {string} [setup.dbName] - Database name (inherited).
+ * @param {string} [setup.host] - Database host (inherited).
+ * @param {string} [setup.password] - Database password (inherited).
+ */
 class PostgresDB extends DataBase {
    /**
     * Initializes a new PostgresDB instance and connects to the PostgresSQL database.
@@ -32,6 +56,15 @@ class PostgresDB extends DataBase {
       });
    }
 
+   /**
+    * Initializes the PostgresDB connection, creates schemas and tables if necessary,
+    * and sets up a test user. This method should be called after instantiating the class
+    * to ensure the database is ready for use.
+    *
+    * @async
+    * @throws {Object} Throws a standardized error object if the connection or initialization fails.
+    * @returns {Promise<void>} Resolves when the database is initialized and ready.
+    */
    async init() {
       if (!this.pool || !this.pool.connect) {
          throw this.toError('Database connection pool is not initialized.');
@@ -39,38 +72,57 @@ class PostgresDB extends DataBase {
 
       try {
          await this.pool.connect();
-         for (const schema of this.schemas) {
+         for (const schema of this.getSchemasArray()) {
             await this.createSchema(schema)
          }
 
          await this.onReady(this);
          await this.createTestUser();
+
          console.log('PostgresDB connected successfully');
+         return this;
       } catch (error) {
          throw this.toError('Failed to connect to PostgresDB: ' + error.message);
       }
    }
 
+   /**
+    * Creates a test user in the 'users_schema.users' table if it does not already exist.
+    * The test user will have the email 'test@test.com' and a default password.
+    * If the user already exists, no action is taken.
+    * Logs an error if user creation fails.
+    * @async
+    * @returns {Promise<void>}
+    */
    async createTestUser() {
       try {
-         const [ user ] = await this.read('users_schema.users', { email: { condition: '=', value: 'test@test.com' }});
+         const userQuery = this.select('users_schema', 'users').where({ email: 'test@test.com' }).limit(1);
+         const { data: [ user ] } = await userQuery.exec();
 
          if (!user) {
             const bcrypt = require('bcrypt');
             const hashedPassword = await bcrypt.hash('Test!123', 10);
 
-            await this.create('users_schema.users', {
+            const created = await this.insert('users_schema', 'users').data({
                first_name: 'Test',
                last_name: 'User',
                password: hashedPassword,
                email: 'test@test.com'
-            });
+            }).exec();
+
+            if (created.error) {
+               throw created;
+            }
          }
       } catch (error) {
          console.error(this.toError('Error creating test user: ' + error.message));
       }
    }
 
+   /**
+    * Checks if the database connection is active.
+    * @returns {Promise<boolean>} True if connected, false otherwise.
+    */
    async isConnected() {
       try {
          const result = await this.pool.query('SELECT 1');
@@ -83,72 +135,11 @@ class PostgresDB extends DataBase {
    }
 
    /**
-    * Builds a SQL WHERE clause from conditions.
-    * Supports both AND (object) and OR (array) conditions.
-    * @param {object|array} conditions - Conditions for the WHERE clause.
-    * @param {number} [startIndex=1] - Starting index for parameter placeholders.
-    * @returns {string} - SQL WHERE clause.
+    * Returns an array of schema objects managed by this database instance.
+    * @returns {Array} Array of schema objects.
     */
-   buildWhere(conditions = {}, startIndex = 1) {
-      let result = '';
-
-      if (Array.isArray(conditions)) {
-         // If conditions is an array, we assume it's a list of OR conditions
-
-         result = conditions.map((current, idx) => {
-            const [key, props] = current;
-            const operator = props.operator || '=';
-
-            return `${key} ${operator} $${idx + startIndex}`;
-         }).join(' OR ');
-      } else if (typeof conditions === 'object') {
-         // If conditions is an object, we assume it's a list of AND conditions
-
-         result = Object.entries(conditions).map((current, idx) => {
-            const [key, props] = current;
-            const operator = props.operator || '=';
-
-            return `${key} ${operator} $${idx + startIndex}`;
-         }).join(' AND ');
-      }
-
-      return result;
-   }
-
-   /**
-    * Builds a SQL SET clause for updates.
-    * @param {object} data - Fields to update.
-    * @returns {string} - SQL SET clause.
-    */
-   buildSet(data = {}) {
-      const dataEntries = Object.keys(data);
-
-      if (dataEntries.length === 0) {
-         return '';
-      }
-
-      const parsed = dataEntries.map((key, index) => `${key} = $${index + 1}`);
-      return parsed.join(', ');
-   }
-
-   /**
-    * Extracts values from condition objects for parameterized queries.
-    * @param {object} conditions - Condition object.
-    * @returns {array} - Array of values.
-    */
-   getConditionValues(conditions = {}) {
-      if (Array.isArray(conditions)) {
-         // Array of OR conditions: each entry is [key, { value, operator }]
-         return conditions.map(([_, props]) => props.value);
-      } else if (typeof conditions === 'object' && conditions !== null) {
-         // Object of AND conditions: { key: { value, operator } }
-         return Object.keys(conditions).map((key) => {
-            const props = conditions[key];
-            return props.value;
-         });
-      } else {
-         return [];
-      }
+   getSchemasArray() {
+      return Array.from(this.schemas.values());
    }
 
    /**
@@ -157,7 +148,7 @@ class PostgresDB extends DataBase {
     * @param {Array} tables - Array of table definitions ({ name, fields }).
     */
    async createSchema(schema) {
-      const { name: schemaName, tables = [] } = schema;
+      const { name: schemaName, tables = new Map() } = schema;
 
       try {
          await this.pool.query(schema.buildCreateSchemaQuery());
@@ -167,7 +158,7 @@ class PostgresDB extends DataBase {
       }
 
       try {
-         for (const table of tables) {
+         for (const table of Array.from(tables.values())) {
             await this.createTable(schemaName, table);
          }
       } catch (error) {
@@ -232,118 +223,51 @@ class PostgresDB extends DataBase {
    }
 
    /**
-    * Inserts a new record into a table.
-    * @param {string} tableName - Table name (with schema if needed).
-    * @param {object} data - Object with fields and values to insert.
-    * @returns {Promise<object>} - The inserted record.
+    * Returns a new InsertSQL query builder for the given schema and table.
+    * @param {string} schemaName - Schema name.
+    * @param {string} tableName - Table name.
+    * @returns {InsertSQL}
     */
-   async create(tableName, data) {
-      if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
-         throw this.toError('Invalid data provided for insert.');
-      }
-
-      const columns = Object.keys(data);
-      const values = Object.values(data);
-      const placeholders = columns.map((_, index) => `$${index + 1}`).join(', ');
-
-      const query = `
-         INSERT INTO ${tableName} (${columns.join(', ')})
-         VALUES (${placeholders})
-         RETURNING *;
-      `;
-
-      try {
-         const result = await this.pool.query(query, values);
-         return result.rows[0];
-      } catch (error) {
-         if (error.code === '22P02') { // Invalid text representation
-            error.code = 400; // Bad Request
-            return this.toError(error);
-         }
-
-         return this.toError(error);
-      }
+   insert(schemaName, tableName) {
+      return new InsertSQL(this, schemaName, tableName);
    }
 
    /**
-    * Reads records from a table with optional conditions.
-    * @param {string} tableName - Table name (with schema if needed).
-    * @param {object|array} conditions - Conditions for the WHERE clause. An array of conditions can be used for OR logic. If an object is provided, it will be treated as AND conditions.
-    * @returns {Promise<Array>} - Array of records.
+    * Returns a new SelectSQL query builder for the given schema and table.
+    * @param {string} schemaName - Schema name.
+    * @param {string} tableName - Table name.
+    * @returns {SelectSQL}
     */
-   async read(tableName, conditions) {
-      const whereClause = this.buildWhere(conditions);
-
-      const query = `
-         SELECT * FROM ${tableName}
-         ${whereClause ? `WHERE ${whereClause}` : ''}
-      `;
-
-      try {
-         const values = this.getConditionValues(conditions);
-         const result = await this.pool.query(query, values);
-
-         return result.rows;
-      } catch (error) {
-         this.toError('Error reading records from database: ' + error.message);
-         return [];
-      }
+   select(schemaName, tableName) {
+      return new SelectSQL(this, schemaName, tableName);
    }
 
    /**
-    * Updates records in a table based on conditions.
-    * @param {string} schema_table - Table name (with schema).
-    * @param {object} condition - Conditions for the WHERE clause. An array of conditions can be used for OR logic. If an object is provided, it will be treated as AND conditions.
-    * @param {object} data - Object with fields and values to update.
-    * @returns {Promise<Array>} - Array of updated records.
+    * Returns a new UpdateSQL query builder for the given schema and table.
+    * @param {string} schemaName - Schema name.
+    * @param {string} tableName - Table name.
+    * @returns {UpdateSQL}
     */
-   async update(schema_table, condition, data) {
-      const fields = Object.keys(data);
-      const values = Object.values(data);
-      const conditionsValues = this.getConditionValues(condition);
-
-      // Build SET and WHERE clauses for SQL: "field1 = $1, field2 = $2, ..."
-      const setClause = this.buildSet(data);
-      const whereClause = this.buildWhere(condition, fields.length + 1);
-
-      // The parameter for the WHERE clause comes after the fields to be updated
-      const sql = `UPDATE ${schema_table} SET ${setClause} WHERE ${whereClause} RETURNING *`;
-
-      // Array of values: [...field values, ...condition values]
-      const params = [...values, ...conditionsValues];
-
-      const result = await this.pool.query(sql, params);
-      return result.rows;
+   update(schemaName, tableName) {
+      return new UpdateSQL(this, schemaName, tableName);
    }
 
    /**
-    * Deletes records from a table based on conditions.
-    * @param {string} tableName - Table name (with schema if needed).
-    * @param {object|array} conditions - Conditions for the WHERE clause. An array of conditions can be used for OR logic. If an object is provided, it will be treated as AND conditions.
-    * @returns {Promise<Array>} - Array of deleted records.
+    * Returns a new DeleteSQL query builder for the given schema and table.
+    * @param {string} schemaName - Schema name.
+    * @param {string} tableName - Table name.
+    * @returns {DeleteSQL}
     */
-   async delete(tableName, conditions) {
-      const whereClause = this.buildWhere(conditions);
-      if (!whereClause) {
-         this.toError('No conditions provided for delete.');
-         return;
-      }
-
-      const query = `
-         DELETE FROM ${tableName}
-         ${whereClause ? `WHERE ${whereClause}` : ''}
-         RETURNING *;
-      `;
-
-      try {
-         const values = this.getConditionValues(conditions);
-         const result = await this.pool.query(query, values);
-         return result.rows;
-      } catch (error) {
-         this.toError('Error deleting record from database: ' + error.message);
-      }
+   delete(schemaName, tableName) {
+      return new DeleteSQL(this, schemaName, tableName);
    }
 
+   /**
+    * Maps an error or error message to a standardized error object.
+    * @param {string|Object} error - The error message or error object.
+    * @param {number} [code=500] - The error code.
+    * @returns {Object} The standardized error object.
+    */
    toError(error, code = 500) {
       if (typeof error === 'string') {
          return {

@@ -14,8 +14,8 @@ describe('Schema', () => {
          const schema = new Schema({ name: 'myschema', tables });
 
          expect(schema.name).toBe('myschema');
-         expect(Array.isArray(schema.tables)).toBe(true);
-         expect(schema.tables.length).toBe(2);
+         expect(schema.tables instanceof Map).toBe(true);
+         expect(schema.tables.size).toBe(2);
          expect(Table).toHaveBeenCalledTimes(2);
          expect(Table).toHaveBeenCalledWith({ name: 'users' });
          expect(Table).toHaveBeenCalledWith({ name: 'posts' });
@@ -23,7 +23,7 @@ describe('Schema', () => {
 
       it('should default tables to empty array if not provided', () => {
          const schema = new Schema({ name: 'myschema' });
-         expect(schema.tables).toEqual([]);
+         expect(schema.tables.size).toEqual(0);
          expect(Table).not.toHaveBeenCalled();
       });
 
