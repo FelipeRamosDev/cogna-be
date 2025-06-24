@@ -57,9 +57,7 @@ class Table {
       }
 
       const fieldsDefinition = this.fields.map(field => field.buildDefinitionSQL()).join(', ');
-      return `CREATE TABLE IF NOT EXISTS ${schemaName}.${this.name} (
-         ${fieldsDefinition}
-      );`;
+      return `CREATE TABLE IF NOT EXISTS ${schemaName}.${this.name} (${fieldsDefinition});`;
    }
 }
 

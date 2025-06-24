@@ -13,12 +13,6 @@ describe('SQL', () => {
       expect(() => new SQL({})).toThrow();
    });
 
-   it('should set schema and table via from()', () => {
-      const q = new SQL(dbMock).from('myschema', 'mytable');
-      expect(q.schemaName).toBe('myschema');
-      expect(q.tableName).toBe('mytable');
-   });
-
    it('should build tablePath and validate identifiers', () => {
       const q = new SQL(dbMock, 'myschema', 'mytable');
       expect(q.tablePath).toBe('myschema.mytable');

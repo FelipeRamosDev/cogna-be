@@ -23,7 +23,7 @@ describe('InsertSQL', () => {
 
    it('should build toString with returning', () => {
       const q = new InsertSQL(dbMock, 'myschema', 'mytable');
-      q.data({ a: 1 });
+      q.data({ a: 1 }).returning();
       expect(q.toString()).toMatch(/RETURNING/);
    });
 });
