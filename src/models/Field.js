@@ -1,3 +1,5 @@
+const RelatedField = require("./RelatedField");
+
 /**
  * Field class represents a field in a database model.
  * It initializes with a key, type, and optional properties like notNull, unique, defaultValue, primaryKey, and autoIncrement.
@@ -28,6 +30,7 @@ class Field {
          primaryKey,
          autoIncrement,
          defaultValue,
+         relatedField
       } = setup;
 
       if (!name || typeof name !== 'string') {
@@ -41,6 +44,10 @@ class Field {
       this.unique = Boolean(unique);
       this.primaryKey = Boolean(primaryKey);
       this.autoIncrement = Boolean(autoIncrement);
+
+      if (relatedField) {
+         this.relatedField = new RelatedField(relatedField);
+      }
    }
 
    /**
@@ -48,43 +55,58 @@ class Field {
     * @returns {string} The SQL definition for the field.
     */
    buildDefinitionSQL() {
-      const constraints = [];
+      const SQLQuery = [];
 
       if (this.type) {
-         constraints.push(this.type);
+         SQLQuery.push(this.type);
       }
 
       if (this.primaryKey) {
-         constraints.push('SERIAL PRIMARY KEY');
+         SQLQuery.push('SERIAL PRIMARY KEY');
       }
 
       if (this.unique) {
-         constraints.push('UNIQUE');
+         SQLQuery.push('UNIQUE');
       }
 
       if (this.autoIncrement) {
-         constraints.push('AUTOINCREMENT');
+         SQLQuery.push('AUTOINCREMENT');
       }
 
       if (this.notNull) {
-         constraints.push('NOT NULL');
+         SQLQuery.push('NOT NULL');
       }
 
       if (this.defaultValue !== undefined && this.defaultValue !== null) {
          if (this.defaultValue === 'CURRENT_TIMESTAMP') {
-            constraints.push('DEFAULT CURRENT_TIMESTAMP');
+            SQLQuery.push('DEFAULT CURRENT_TIMESTAMP');
          }
          
          else if (typeof this.defaultValue === 'string') {
-            constraints.push(`DEFAULT '${this.defaultValue}'`);
+            SQLQuery.push(`DEFAULT '${this.defaultValue}'`);
          }
          
          else {
-            constraints.push(`DEFAULT ${this.defaultValue}`);
+            SQLQuery.push(`DEFAULT ${this.defaultValue}`);
          }
       }
 
-      return `${this.name} ${constraints.join(' ')}`;
+      if (this.relatedField) {
+         const { tablePath, field } = this.relatedField;
+         if (!tablePath || !field) {
+            throw new Error('Foreign key must have both tablePath and field defined');
+         }
+
+         SQLQuery.push(',');
+         SQLQuery.push(`
+            CONSTRAINT fk_${this.name}
+               FOREIGN KEY (${this.name})
+               REFERENCES ${tablePath}(${field})
+               ON DELETE SET NULL
+         `);
+      }
+
+      return `${this.name} ${SQLQuery.join(' ')}`;
    }
 }
 

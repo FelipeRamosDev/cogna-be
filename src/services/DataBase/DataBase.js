@@ -1,3 +1,5 @@
+const Field = require('../../models/Field');
+
 /**
  * Base class for database services.
  *
@@ -73,6 +75,22 @@ class DataBase {
       }
 
       return table;
+   }
+
+   /**
+    * Returns a field object by table path and the field name (schema.table and field).
+    * @param {string} tablePath - The table path in the format 'schema.table'.
+    * @param {string} fieldName - The name of the field.
+    * @returns {Field} The field object.
+    */
+   getField(tablePath, fieldName) {
+      const [ schemaName, tableName ] = tablePath.split('.');
+
+      const schema = this.getSchema(schemaName);
+      const table = schema && schema.getTable(tableName);
+      const field = table && table.getField(fieldName);
+
+      return field;
    }
 
    /**

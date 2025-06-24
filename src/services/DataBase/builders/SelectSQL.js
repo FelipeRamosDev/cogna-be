@@ -20,7 +20,7 @@ class SelectSQL extends SQL {
    constructor(database, schemaName, tableName) {
       super(database, schemaName, tableName);
 
-      this.selectClause = 'SELECT * FROM';
+      this.selectClause = '';
       this.sortClause = '';
    }
 
@@ -29,9 +29,19 @@ class SelectSQL extends SQL {
     * @returns {string} The SQL query string.
     */
    toString() {
+      if (!this.selectClause) {
+         this.selectFields();
+      }
+
+      if (!this.fromClause) {
+         this.from();
+      }
+
       const queryParts = [
          this.selectClause,
-         this.tablePath,
+         this.fromClause,
+         this.joinClause,
+         this.onClause,
          this.whereClause,
          this.sortClause,
          this.limitClause
@@ -45,12 +55,21 @@ class SelectSQL extends SQL {
     * @param {string[]} [fields=['*']] - The fields to select.
     * @returns {SelectSQL}
     */
-   select(fields = ['*']) {
+   selectFields(fields = ['*']) {
       if (Array.isArray(fields) && fields.length) {
-         const validatedFields = fields.map(field => this.charsVerifier(field));  
-         this.selectClause = `SELECT ${validatedFields.join(', ')} FROM`;
-      } else {
-         this.selectClause = 'SELECT * FROM';
+         const validatedFields = fields.map(field => {
+            if (typeof field === 'string') {
+               return this.charsVerifier(field, '*.')
+            }
+
+            else if (Array.isArray(field) && field.length === 2) {
+               return `${this.charsVerifier(field[0], '.')} AS ${this.charsVerifier(field[1], '.')}`;
+            }
+
+            return '';
+         });
+
+         this.selectClause = `SELECT ${validatedFields.join(', ')}`;
       }
 
       return this;
@@ -82,7 +101,23 @@ class SelectSQL extends SQL {
       if (parsed.length) {
          this.sortClause = `ORDER BY ${parsed.join(', ')}`;
       }
+
       return this;
+   }
+
+   populate(fieldName, fields) {
+      const originAllFields = `${this.tableName}.*`;
+
+      this.selectFields([ originAllFields, ...fields ]);
+      this.from([{ path: this.tablePath, alias: this.tableName }]);
+
+      const field = this.database.getField(this.tablePath, fieldName);
+      const relatedField = field.relatedField;
+
+      this.join(relatedField.tablePath);
+      this.on(`${this.tableName}.${fieldName}`, `${relatedField.table}.${relatedField.field}`);
+
+      return this;  
    }
 }
 

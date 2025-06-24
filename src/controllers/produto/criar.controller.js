@@ -2,7 +2,7 @@ module.exports = async function(req, res) {
    const db = this.getDataBase();
    const productData = req.body;
 
-   if (!productData || Object.keys(productData).length === 0) {
+   if (!productData || !Object.keys(productData).length) {
       return res.status(400).send({ error: 'Product data is required.' });
    }
 

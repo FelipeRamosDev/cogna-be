@@ -76,8 +76,8 @@ class PostgresDB extends DataBase {
             await this.createSchema(schema)
          }
 
-         await this.onReady(this);
          await this.createTestUser();
+         await this.onReady(this);
 
          console.log('PostgresDB connected successfully');
          return this;
@@ -97,7 +97,12 @@ class PostgresDB extends DataBase {
    async createTestUser() {
       try {
          const userQuery = this.select('users_schema', 'users').where({ email: 'test@test.com' }).limit(1);
-         const { data: [ user ] } = await userQuery.exec();
+         const { data, error } = await userQuery.exec();
+         const [ user ] = data || [];
+
+         if (error) {
+            throw this.toError('Error checking for existing test user: ' + error.message);
+         }
 
          if (!user) {
             const bcrypt = require('bcrypt');
@@ -130,7 +135,6 @@ class PostgresDB extends DataBase {
       } catch (error) {
          this.toError('Error checking connection: ' + error.message);
          return false;
-         
       }
    }
 
@@ -180,7 +184,6 @@ class PostgresDB extends DataBase {
          await this.syncTable(table.name, schemaName, table.fields);
       } catch (error) {;
          return this.toError(`Error creating table ${table.name} in schema ${schemaName}: ${error.message}`);
-
       }
    }
 

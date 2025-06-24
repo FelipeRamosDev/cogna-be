@@ -1,13 +1,13 @@
 /**
- * QuerySQL is a query builder for SQL databases, designed for use with PostgreSQL.
+ * SQL is a query builder for SQL databases, designed for use with PostgreSQL.
  * It provides a fluent interface for building and executing SQL queries with parameterized values.
  *
- * @class QuerySQL
+ * @class SQL
  * @param {Object} database - The database instance with a pool.query method.
  * @param {string} [schemaName] - The schema name for the table.
  * @param {string} [tableName] - The table name.
  */
-class QuerySQL {
+class SQL {
    /**
     * @constructor
     * @param {Object} database - The database instance with a pool.query method.
@@ -24,8 +24,11 @@ class QuerySQL {
       this.tableName = tableName;
 
       this.whereClause = '';
+      this.fromClause = ''
       this.limitClause = '';
-      this.returningClause = 'RETURNING *';
+      this.returningClause = '';
+      this.joinClause = '';
+      this.onClause = '';
       this.values = [];
    }
 
@@ -48,8 +51,8 @@ class QuerySQL {
     * @returns {string} The verified identifier.
     * @throws {Error} If the identifier is invalid.
     */
-   charsVerifier(identifier) {
-      if (!/^[a-zA-Z0-9_]+$/.test(identifier)) {
+   charsVerifier(identifier, ignoreChars = '') {
+      if (!new RegExp(`^[a-zA-Z0-9_${ignoreChars}]+$`).test(identifier)) {
          throw new Error(`Invalid identifier: ${identifier}`);
       }
 
@@ -57,8 +60,35 @@ class QuerySQL {
    }
 
    /**
+    * Verifies that a table path is valid and in the format "schema.table".
+    * Each part of the path is checked for valid characters using charsVerifier.
+    *
+    * @param {string} tablePath - The table path to verify, expected in the format "schema.table".
+    * @param {string} [ignoreChars] - Optional string of additional characters to allow in the identifier.
+    * @returns {string} The verified table path.
+    * @throws {Error} If tablePath is not a non-empty string, not in the correct format, or contains invalid characters.
+    */
+   tablePathVerifier(tablePath, ignoreChars) {
+      if (!tablePath || typeof tablePath !== 'string') {
+         throw new Error('Table path must be a non-empty string.');
+      }
+
+      const parts = tablePath.split('.');
+      if (parts.length !== 2) {
+         throw new Error('Table path must be in the format "schema.table".');
+      }
+
+      const isValid = parts.every(part => this.charsVerifier(part, ignoreChars));
+      if (!isValid) {
+         throw new Error(`Invalid table path: ${tablePath}`);
+      }
+
+      return `${tablePath}`;
+   }
+
+   /**
     * Allows queries without a WHERE clause (use with caution).
-    * @returns {QuerySQL}
+    * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
     */
    allowNullWhere() {
       this.isAllowedNullWhere = true;
@@ -66,26 +96,90 @@ class QuerySQL {
    }
 
    /**
-    * Sets the schema and table name for the query.
-    * @param {string} schemaName
-    * @param {string} tableName
-    * @returns {QuerySQL}
-    * @throws {Error} If schema or table name is not a string.
+    * Sets the FROM clause for the query, supporting one or multiple tables (with optional aliases).
+    *
+    * Each path can be a string (table path in format 'schema.table') or an object:
+    *   { path: 'schema.table', alias: 't' }
+    *
+    * Multiple tables will be separated by commas (producing a cartesian product, not a JOIN).
+    * For JOINs, use the join() method.
+    *
+    * @param {Array<{ path: string, alias?: string }>|string[]} [paths=[{ path: this.tablePath, alias: '' }]]
+    *   Array of table paths (with optional aliases) or strings in 'schema.table' format.
+    * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL} The query builder instance for chaining.
+    * @throws {Error} If any table path or alias is invalid.
     */
-   from(schemaName, tableName) {
-      if (typeof schemaName !== 'string' || typeof tableName !== 'string') {
-         throw this.database.toError('Schema name and table name must be strings.');
+   from(paths = [{ path: this.tablePath, alias: '' }]) {
+      const parsePaths = paths.map((item) => {
+         if (typeof item === 'string') {
+            return this.charsVerifier(item);
+         }
+
+         if (typeof item === 'object' && !Array.isArray(item) && item.path) {
+            return item.alias ? `${item.path} AS ${this.charsVerifier(item.alias)}` : item.path;
+         }
+      }).join(', ');
+
+      this.fromClause = `FROM ${parsePaths}`;
+      return this;
+   }
+
+   /**
+    * Adds a JOIN clause to the query.
+    *
+    * @param {string} tablePath - The table path to join, in the format "schema.table".
+    * @param {string} [joinType='LEFT'] - The type of join to perform. Must be one of: 'LEFT', 'RIGHT', 'INNER', 'OUTER'.
+    * @param {string} [alias=''] - Optional alias for the joined table. If not provided, the table name will be used as the alias.
+    * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL} The query builder instance for chaining.
+    * @throws {Error} If tablePath is not a non-empty string.
+    * @throws {Error} If FROM clause is not set before adding JOIN.
+    * @throws {Error} If joinType is not one of the allowed values.
+    */
+   join(tablePath, joinType = 'LEFT', alias = '') {
+      if (!tablePath || typeof tablePath !== 'string') {
+         throw new Error('Table path must be a non-empty string.');
       }
 
-      this.schemaName = schemaName;
-      this.tableName = tableName;
+      const verifiedPath = this.tablePathVerifier(tablePath);
+      if (!this.fromClause) {
+         throw new Error('FROM clause must be set before adding JOIN clauses.');
+      }
+
+      if (!['LEFT', 'RIGHT', 'INNER', 'OUTER'].includes(joinType.toUpperCase())) {
+         throw new Error('Join type must be one of: LEFT, RIGHT, INNER, OUTER.');
+      }
+
+      const splitTablePath = tablePath.split('.');
+      if (!alias && splitTablePath.length === 2) {
+         alias = splitTablePath[1];
+      }
+
+      const joinClause = alias ? `${verifiedPath} AS ${this.charsVerifier(alias)}` : verifiedPath;
+      this.joinClause = `${joinType.toUpperCase()} JOIN ${joinClause}`;
+      return this;
+   }
+
+   /**
+    * Adds an ON clause to the query for joining tables.
+    *
+    * @param {string} fieldOut - The field from the outer (joined) table, e.g., "table1.id".
+    * @param {string} fieldIn - The field from the inner (base) table, e.g., "table2.foreign_id".
+    * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL} The query builder instance for chaining.
+    * @throws {Error} If either fieldOut or fieldIn is not provided.
+    */
+   on(fieldOut, fieldIn) {
+      if (!fieldOut || !fieldIn) {
+         throw new Error('Both fields for ON clause must be provided.');
+      }
+
+      this.onClause = `ON ${fieldOut} = ${fieldIn}`;
       return this;
    }
 
    /**
     * Sets the schema name for the query.
     * @param {string} schemaName
-    * @returns {QuerySQL}
+    * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
     * @throws {Error} If schema name is not a string.
     */
    schema(schemaName) {
@@ -100,7 +194,7 @@ class QuerySQL {
    /**
     * Sets the table name for the query.
     * @param {string} tableName
-    * @returns {QuerySQL}
+    * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
     * @throws {Error} If table name is not a string.
     */
    table(tableName) {
@@ -115,7 +209,7 @@ class QuerySQL {
    /**
     * Adds a WHERE clause to the query. Accepts an object (AND) or array (OR) of conditions.
     * @param {Object|Array} conditions - The conditions for the WHERE clause.
-    * @returns {QuerySQL}
+    * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
     */
    where(conditions = {}) {
       let result = '';
@@ -167,7 +261,7 @@ class QuerySQL {
    /**
     * Adds a LIMIT clause to the query.
     * @param {number} limit - The maximum number of records to return.
-    * @returns {QuerySQL}
+    * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
     * @throws {Error} If limit is not a positive number.
     */
    limit(limit = 10) {
@@ -182,10 +276,10 @@ class QuerySQL {
    /**
     * Adds a RETURNING clause to the query (for INSERT/UPDATE/DELETE).
     * @param {string|string[]} columns - The columns to return.
-    * @returns {QuerySQL}
+    * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
     * @throws {Error} If columns is not a string or array of strings.
     */
-   returning(columns = '*') {
+   returning(columns = ['*']) {
       if (typeof columns !== 'string' && !Array.isArray(columns)) {
          throw new Error('Columns must be a string or an array of strings.');
       }
@@ -218,16 +312,35 @@ class QuerySQL {
          }
       } catch (error) {
          let mappedError = error;
+
          if (error.code === '22P02') {
             mappedError = { ...error, code: 400 }; 
+         } else if (error.code === '23505') {
+            mappedError = { ...error, code: 409 }; 
+         } else if (error.code === '23503') {
+            mappedError = { ...error, code: 404 }; 
+         } else if (error.code === '42601') {
+            mappedError = { ...error, code: 400 }; 
+         } else if (error.code === '3D000') {
+            mappedError = { ...error, code: 404 }; 
          }
-      
+
          return this.database.toError(mappedError);
       }
+   }
+
+   /**
+    * Executes a raw SQL query with the provided arguments.
+    * 
+    * @param  {...any} args 
+    * @returns 
+    */
+   query(...args) {
+      return this.database.pool.query(...args);
    }
 }
 
 /**
- * Exports the QuerySQL class for use as a query builder.
+ * Exports the SQL class for use as a query builder.
  */
-module.exports = QuerySQL;
+module.exports = SQL;
