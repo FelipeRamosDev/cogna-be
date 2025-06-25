@@ -3,6 +3,8 @@ const request = require('supertest');
 describe('POST /produto/editar', () => {
    let apiServer;
    let authCookie;
+   let productId;
+   let userId;
    
    beforeAll(async () => {
       apiServer = await require('../../../app');
@@ -12,11 +14,29 @@ describe('POST /produto/editar', () => {
          .send({ email: 'test@test.com', password: 'Test!123' });
 
       authCookie = loginResponse.headers['set-cookie'];
+
+      // Busca o id do usuário autenticado
+      const meRes = await request(apiServer.app)
+         .get('/meu-perfil')
+         .set('Cookie', authCookie);
+      userId = meRes.body.user?.id || 1;
+
+      // Cria um produto para garantir autoria
+      const createRes = await request(apiServer.app)
+         .post('/produto/criar')
+         .set('Cookie', authCookie)
+         .send({
+            name: 'Produto Teste',
+            description: 'Produto para teste de edição',
+            price: 100,
+            author_id: userId
+         });
+      productId = createRes.body.product?.id || 1;
    });
 
    it('should update a product successfully with valid data', async () => {
       const updateData = {
-         id: 1, // Assuming a product with ID 1 exists
+         id: productId, // Usa o produto criado
          data: {
             name: 'Produto Atualizado',
             description: 'Descrição atualizada do produto',
