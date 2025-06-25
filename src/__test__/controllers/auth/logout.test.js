@@ -42,7 +42,7 @@ describe('Logout Controller', () => {
       expect(res.json).toHaveBeenCalledWith(
          expect.objectContaining({
             error: true,
-            message: expect.stringContaining('An error occurred'),
+            message: 'Session not found',
             code: 'LOGOUT_ERROR'
          })
       );
