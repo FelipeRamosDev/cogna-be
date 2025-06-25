@@ -1,10 +1,15 @@
+const ErrorDatabase = require("../../models/errors/ErrorDatabase");
 const ErrorRequestHTTP = require("../../models/errors/ErrorRequestHTTP");
 
 module.exports = async function (req, res) {
    const DB = this.getDataBase();
-   const { selectFields, where, sort, limit, populateAuthor } = req.body;
-
+   
    try {
+      if (!req.body || typeof req.body !== 'object') {
+         return new ErrorRequestHTTP('Invalid request body.', 400, 'INVALID_REQUEST_BODY').send(res);
+      }
+
+      const { selectFields, where, sort, limit, populateAuthor } = req.body;
       const query = DB.select('products_schema', 'products').where(where);
 
       if (selectFields) {
@@ -38,7 +43,10 @@ module.exports = async function (req, res) {
          products: data
       });
    } catch (error) {
-      console.error(error);
+      if (error instanceof ErrorDatabase) {
+         return new ErrorRequestHTTP(error.message, 404, error.code).send(res);
+      }
+
       return new ErrorRequestHTTP().send(res);
    }
 }

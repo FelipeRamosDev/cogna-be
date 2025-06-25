@@ -10,6 +10,10 @@ class ErrorRequestHTTP extends Error {
    }
 
    send(res) {
+      if (!res || typeof res.status !== 'function' || typeof res.send !== 'function') {
+         throw new Error('Invalid response object provided to ErrorRequestHTTP.send');
+      }
+
       return res.status(this.status).send({
          error: this.error,
          code: this.code,

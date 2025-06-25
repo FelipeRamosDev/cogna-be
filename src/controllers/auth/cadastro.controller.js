@@ -44,7 +44,6 @@ module.exports = async function(req, res) {
       res.cookie('token', token, { httpOnly: true, secure: false });
       res.status(201).send({ success: true, message: 'User registered successfully.', user });
    } catch (error) {
-      console.error(error);
       return new ErrorRequestHTTP().send(res);
    }  
 }

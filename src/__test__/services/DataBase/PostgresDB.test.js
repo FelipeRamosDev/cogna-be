@@ -1,3 +1,4 @@
+const ErrorDatabase = require('../../../models/errors/ErrorDatabase');
 const Schema = require('../../../models/Schema');
 const PostgresDB = require('../../../services/DataBase/PostgresDB');
 const { Pool } = require('pg');
@@ -51,14 +52,12 @@ describe('PostgresDB', () => {
       });
 
       it('should throw error for invalid data', async () => {
-         const result = await db.insert('schema', 'table', null).exec();
-         await expect(result).toEqual({"code": 500, "error": true, "message": "No data returned from the database."});
+         await expect(db.insert('schema', 'table', null).exec()).rejects.toThrow('No data returned from the database.');
       });
 
       it('should return error object on query error', async () => {
-         poolMock.query.mockRejectedValue(new Error('fail'));
-         const result = await db.insert('schema', 'table').data({ name: 'foo' }).exec();
-         expect(result).toEqual(expect.objectContaining({ error: true, message: 'fail' }));
+         poolMock.query.mockRejectedValue(new ErrorDatabase('fail'));
+         await expect(db.insert('schema', 'table').data({ name: 'foo' }).exec()).rejects.toThrow('fail');
       });
    });
 
@@ -72,11 +71,8 @@ describe('PostgresDB', () => {
       });
 
       it('should return empty array on error', async () => {
-         poolMock.query.mockRejectedValue(new Error('fail'));
-         const res = await db.select('schema', 'table').where({ id: 1 }).exec();
-
-         expect(res).toHaveProperty('error', true);
-         expect(res).toHaveProperty('message', 'fail');
+         poolMock.query.mockRejectedValue(new ErrorDatabase('fail'));
+         await expect(db.select('schema', 'table').where({ id: 1 }).exec()).rejects.toThrow('fail');
       });
    });
 
@@ -98,16 +94,12 @@ describe('PostgresDB', () => {
       });
 
       it('should return undefined if no where clause', async () => {
-         const result = await db.delete('schema', 'table').where({}).exec();
-         expect(result).toHaveProperty('error', true);
-         expect(result).toHaveProperty('message', 'Where clause is required for delete queries unless allowNullWhere is set.');
+         await expect(db.delete('schema', 'table').where({}).exec()).rejects.toThrow('Where clause is required for delete queries unless allowNullWhere is set.');
       });
 
       it('should return undefined on query error', async () => {
-         poolMock.query.mockRejectedValue(new Error('fail'));
-         const result = await db.delete('schema', 'table').where({ id: 1 }).exec();
-         expect(result).toHaveProperty('error', true);
-         expect(result).toHaveProperty('message', 'fail');
+         poolMock.query.mockRejectedValue(new ErrorDatabase('fail'));
+         await expect(db.delete('schema', 'table').where({ id: 1 }).exec()).rejects.toThrow('fail');
       });
    });
 
@@ -142,14 +134,11 @@ describe('PostgresDB', () => {
 
       it('should handle error in schema creation', async () => {
          const schema = {
-            name: 'myschema',
             buildCreateSchemaQuery: jest.fn(() => 'CREATE SCHEMA myschema'),
             tables: []
          };
-         poolMock.query.mockRejectedValueOnce(new Error('fail'));
-         const spy = jest.spyOn(db, 'toError');
-         await db.createSchema(schema);
-         expect(spy).toHaveBeenCalledWith('Error creating schema: fail');
+         poolMock.query.mockRejectedValueOnce(new ErrorDatabase('fail'));
+         await expect(db.createSchema(schema)).rejects.toThrow('Error creating schema: fail');
       });
 
       it('should handle error in table creation', async () => {
@@ -165,10 +154,8 @@ describe('PostgresDB', () => {
             ]
          };
          poolMock.query.mockResolvedValue({});
-         db.createTable = jest.fn(() => { throw new Error('fail'); });
-         const spy = jest.spyOn(db, 'toError');
-         await db.createSchema(schema);
-         expect(spy).toHaveBeenCalledWith('Error creating tables: fail');
+         db.createTable = jest.fn(() => { throw new ErrorDatabase('fail'); });
+         await expect(db.createSchema(schema)).rejects.toThrow('Error creating tables: fail');
       });
    });
 
@@ -192,10 +179,8 @@ describe('PostgresDB', () => {
             buildCreateTableQuery: jest.fn(() => 'CREATE TABLE s.t()'),
             fields: []
          };
-         poolMock.query.mockRejectedValueOnce(new Error('fail'));
-         const spy = jest.spyOn(db, 'toError');
-         await db.createTable('s', table);
-         expect(spy).toHaveBeenCalledWith('Error creating table t in schema s: fail');
+         poolMock.query.mockRejectedValueOnce(new ErrorDatabase('fail'));
+         await expect(db.createTable('s', table)).rejects.toThrow('Error creating table t in schema s: fail');
       });
    });
 

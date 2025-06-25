@@ -20,7 +20,6 @@ module.exports = async function (req, res) {
          product: products[0]
       });
    } catch (error) {
-      console.error(error);
       return new ErrorRequestHTTP().send(res);
    }
 }

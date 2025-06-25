@@ -1,6 +1,6 @@
 const request = require('supertest');
 
-describe('POST /produto/buscar', () => {
+describe('POST /produto/busca', () => {
    let apiServer
    
    beforeAll(async () => {
@@ -46,7 +46,7 @@ describe('POST /produto/buscar', () => {
          .post('/produto/busca')
          .send(invalidQuery);
 
-      expect(response.statusCode).toBe(400);
+      expect(response.statusCode).toBe(404);
       expect(response.body).toHaveProperty('error');
    });
 
@@ -58,7 +58,7 @@ describe('POST /produto/buscar', () => {
          .post('/produto/busca')
          .send(errorData);
 
-      expect(response.statusCode).toBe(500);
+      expect(response.statusCode).toBe(400);
       expect(response.body).toHaveProperty('error');
    });
 
@@ -69,14 +69,14 @@ describe('POST /produto/buscar', () => {
          },
          limit: 5,
          sort: { created_at: 'desc' },
-         selectFields: ['id', 'name', 'price', 'created_at'],
+         selectFields: ['id', 'name', 'price', 'created_at', 'author_id'],
       };
 
       const response = await request(apiServer.app)
-         .post('/produto/buscar')
+         .post('/produto/busca')
          .send(query);
 
-      expect(response.statusCode).toBe(404);
+      expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('products');
       expect(Array.isArray(response.body.products)).toBe(true);

@@ -49,8 +49,6 @@ describe('SQL', () => {
    it('should handle exec errors', async () => {
       dbMock.pool.query.mockRejectedValueOnce({ message: 'fail', code: '22P02' });
       const q = new SQL(dbMock, 's', 't');
-      const result = await q.exec();
-      expect(result.error).toBe(true);
-      expect(dbMock.toError).toHaveBeenCalled();
+      await expect(q.exec()).rejects.toThrow('Database query execution failed: fail');
    });
 });

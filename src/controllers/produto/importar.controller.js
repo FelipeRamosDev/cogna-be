@@ -10,28 +10,36 @@ module.exports = function (req, res) {
    }
 
    fs.readFile(req.file.path, 'utf8', async (err, data) => {
+      let fileUnlinked = false;
+
+      const safeUnlink = () => {
+         if (!fileUnlinked) {
+            fileUnlinked = true;
+            fs.unlink(req.file.path, () => { });
+         }
+      };
+   
       if (err) {
+         safeUnlink();
          return new ErrorRequestHTTP('Error reading file', 404, 'FILE_READ_ERROR').send(res);
       }
 
       try {
          const products = JSON.parse(data);
-
          for (const product of products) {
             product.author_id = userID;
-
             const imported = await db.insert('products_schema', 'products').data(product).exec();
             if (imported.error) {
+               safeUnlink();
                return new ErrorRequestHTTP('Error importing product', 400, 'PRODUCT_IMPORT_ERROR').send(res);
             }
          }
 
+         safeUnlink();
          res.status(201).send({ success: true, products });
       } catch (error) {
-         console.error(error);
-         return new ErrorRequestHTTP().send(res);
-      } finally {
-         fs.unlink(req.file.path, () => { });
+         safeUnlink();
+         return new ErrorRequestHTTP('Error importing product', 400, 'PRODUCT_IMPORT_ERROR').send(res);
       }
    });
 }
