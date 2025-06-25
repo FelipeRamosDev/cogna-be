@@ -1,3 +1,4 @@
+const ErrorDatabase = require("./errors/ErrorDatabase");
 const RelatedField = require("./RelatedField");
 
 /**
@@ -14,7 +15,7 @@ const RelatedField = require("./RelatedField");
  * @param {boolean} [setup.unique=false] - Whether the field must be unique.
  * @param {boolean} [setup.primaryKey=false] - Whether the field is a primary key.
  * @param {boolean} [setup.autoIncrement=false] - Whether the field is auto-incrementing.
- * @throws {Error} If name or type is not provided or is not a string.
+ * @throws {ErrorDatabase} If name or type is not provided or is not a string.
  */
 class Field {
    /**
@@ -34,7 +35,7 @@ class Field {
       } = setup;
 
       if (!name || typeof name !== 'string') {
-         throw new Error('Field name is required');
+         throw new ErrorDatabase('Field name is required', 'FIELD_NAME_REQUIRED');
       }
 
       this.name = name;
@@ -94,7 +95,7 @@ class Field {
       if (this.relatedField) {
          const { tablePath, field } = this.relatedField;
          if (!tablePath || !field) {
-            throw new Error('Foreign key must have both tablePath and field defined');
+            throw new ErrorDatabase('Foreign key must have both tablePath and field defined', 'FOREIGN_KEY_DEFINITION_REQUIRED');
          }
 
          SQLQuery.push(',');

@@ -1,3 +1,4 @@
+const ErrorDatabase = require('../../../models/errors/ErrorDatabase');
 const SQL = require('./SQL');
 
 /**
@@ -33,7 +34,7 @@ class UpdateSQL extends SQL {
     */
    toString() {
       if (!this.whereClause && !this.isAllowedNullWhere) {
-         throw this.database.toError('Where clause is required for update queries unless allowNullWhere is set.');
+         throw new ErrorDatabase('Where clause is required for update queries unless allowNullWhere is set.', 'UPDATE_QUERY_NO_WHERE');
       }
    
       return [
@@ -52,12 +53,12 @@ class UpdateSQL extends SQL {
     */
    set(dataSet = {}) {
       if (typeof dataSet !== 'object' || dataSet === null) {
-         throw this.database.toError('Data set must be a non-null object.');
+         throw new ErrorDatabase('Data set must be a non-null object.', 'UPDATE_QUERY_INVALID_DATA');
       }
 
       const dataEntries = Object.keys(dataSet);
       if (!dataEntries.length) {
-         throw this.database.toError('Data set must contain at least one key-value pair.');
+         throw new ErrorDatabase('Data set must contain at least one key-value pair.', 'UPDATE_QUERY_INVALID_DATA');
       }
 
       const parsed = dataEntries.map((key, index) => {

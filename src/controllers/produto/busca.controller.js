@@ -1,6 +1,7 @@
+const ErrorRequestHTTP = require("../../models/errors/ErrorRequestHTTP");
+
 module.exports = async function (req, res) {
    const DB = this.getDataBase();
-   const API = this.getAPI();
    const { selectFields, where, sort, limit, populateAuthor } = req.body;
 
    try {
@@ -27,10 +28,9 @@ module.exports = async function (req, res) {
       }
 
       const { data = [], error } = await query.exec();
-
       if (error) {
-         const errorData = API.toError('An error occurred while fetching products.');
-         return res.status(401).send(errorData);
+         console.error(error.message);
+         return new ErrorRequestHTTP('An error occurred while fetching products.', 400, 'DB_ERROR').send(res);
       }
 
       res.status(200).send({
@@ -38,7 +38,7 @@ module.exports = async function (req, res) {
          products: data
       });
    } catch (error) {
-      const errorData = API.toError('An error occurred while processing your request.');
-      return res.status(error.code).send(errorData);
+      console.error(error);
+      return new ErrorRequestHTTP().send(res);
    }
 }

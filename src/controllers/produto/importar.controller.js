@@ -1,4 +1,5 @@
 const fs = require('fs');
+const ErrorRequestHTTP = require('../../models/errors/ErrorRequestHTTP');
 
 module.exports = function (req, res) {
    const db = this.getDataBase();
@@ -10,7 +11,7 @@ module.exports = function (req, res) {
 
    fs.readFile(req.file.path, 'utf8', async (err, data) => {
       if (err) {
-         return res.status(500).send({ error: 'Error reading file' });
+         return new ErrorRequestHTTP('Error reading file', 404, 'FILE_READ_ERROR').send(res);
       }
 
       try {
@@ -21,14 +22,14 @@ module.exports = function (req, res) {
 
             const imported = await db.insert('products_schema', 'products').data(product).exec();
             if (imported.error) {
-               console.log('Error importing product:', imported);
-               return res.status(imported.code || 500).send(imported);
+               return new ErrorRequestHTTP('Error importing product', 400, 'PRODUCT_IMPORT_ERROR').send(res);
             }
          }
 
          res.status(201).send({ success: true, products });
       } catch (error) {
-         res.status(400).send({ error: 'Invalid JSON file', data: error });
+         console.error(error);
+         return new ErrorRequestHTTP().send(res);
       } finally {
          fs.unlink(req.file.path, () => { });
       }

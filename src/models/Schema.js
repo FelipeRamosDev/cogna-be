@@ -1,3 +1,4 @@
+const ErrorDatabase = require('./errors/ErrorDatabase');
 const Table = require('./Table');
 
 /**
@@ -19,7 +20,7 @@ class Schema {
       const { name, tables = [] } = setup;
 
       if (!name || typeof name !== 'string') {
-         throw new Error("Schema constructor requires a valid 'name' property of type string.");
+         throw new ErrorDatabase('Schema constructor requires a valid "name" property of type string.', 'SCHEMA_NAME_REQUIRED');
       }
 
       this.name = name;
@@ -35,16 +36,16 @@ class Schema {
     * Returns a table object by name from this schema.
     * @param {string} tableName - The name of the table.
     * @returns {Table} The table object.
-    * @throws {Error} If tableName is not provided or table is not found.
+    * @throws {ErrorDatabase} If tableName is not provided or table is not found.
     */
    getTable(tableName) {
       if (!tableName || typeof tableName !== 'string') {
-         throw new Error("getTable method requires a valid 'tableName' parameter of type string.");
+         throw new ErrorDatabase('getTable method requires a valid "tableName" parameter of type string.', 'TABLE_NAME_REQUIRED');
       }
 
       const table = this.tables.get(tableName);
       if (!table) {
-         throw new Error(`Table ${tableName} not found in schema ${this.name}.`);
+         throw new ErrorDatabase(`Table "${tableName}" not found in schema "${this.name}".`, 'TABLE_NOT_FOUND');
       }
 
       return table;
@@ -57,7 +58,7 @@ class Schema {
     */
    buildCreateSchemaQuery() {
       if (!this.name) {
-         throw new Error('Schema name is required to build the "create schema" query');
+         throw new ErrorDatabase('Schema name is required to build the "create schema" query', 'SCHEMA_NAME_REQUIRED');
       }
 
       return `CREATE SCHEMA IF NOT EXISTS ${this.name};`;

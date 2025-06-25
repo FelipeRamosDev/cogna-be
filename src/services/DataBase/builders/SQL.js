@@ -1,3 +1,5 @@
+const ErrorDatabase = require("../../../models/errors/ErrorDatabase");
+
 /**
  * SQL is a query builder for SQL databases, designed for use with PostgreSQL.
  * It provides a fluent interface for building and executing SQL queries with parameterized values.
@@ -16,7 +18,7 @@ class SQL {
     */
    constructor(database, schemaName = '', tableName = '') {
       if (!database?.pool || typeof database.pool.query !== 'function') {
-         throw new Error('A valid database instance with a query method is required.');
+         throw new ErrorDatabase('A valid database instance with a query method is required.', 'DATABASE_INSTANCE_REQUIRED');
       }
 
       this.database = database;
@@ -35,11 +37,11 @@ class SQL {
    /**
     * Returns the full table path in the format schema.table, after verifying identifiers.
     * @returns {string}
-    * @throws {Error} If schema or table name is not set or invalid.
+    * @throws {ErrorDatabase} If schema or table name is not set or invalid.
     */
    get tablePath() {
       if (!this.schemaName || !this.tableName) {
-         throw new Error('Schema name and table name must be set before executing the query.');
+         throw new ErrorDatabase('Schema name and table name must be set before executing the query.', 'TABLE_PATH_NOT_SET');
       }
 
       return `${this.charsVerifier(this.schemaName)}.${this.charsVerifier(this.tableName)}`;
@@ -49,11 +51,11 @@ class SQL {
     * Verifies that an identifier (schema/table/column) is valid (alphanumeric or underscore).
     * @param {string} identifier
     * @returns {string} The verified identifier.
-    * @throws {Error} If the identifier is invalid.
+    * @throws {ErrorDatabase} If the identifier is invalid.
     */
    charsVerifier(identifier, ignoreChars = '') {
       if (!new RegExp(`^[a-zA-Z0-9_${ignoreChars}]+$`).test(identifier)) {
-         throw new Error(`Invalid identifier: ${identifier}`);
+         throw new ErrorDatabase(`Invalid identifier: ${identifier}`, 'INVALID_IDENTIFIER');
       }
 
       return identifier;
@@ -66,21 +68,21 @@ class SQL {
     * @param {string} tablePath - The table path to verify, expected in the format "schema.table".
     * @param {string} [ignoreChars] - Optional string of additional characters to allow in the identifier.
     * @returns {string} The verified table path.
-    * @throws {Error} If tablePath is not a non-empty string, not in the correct format, or contains invalid characters.
+    * @throws {ErrorDatabase} If tablePath is not a non-empty string, not in the correct format, or contains invalid characters.
     */
    tablePathVerifier(tablePath, ignoreChars) {
       if (!tablePath || typeof tablePath !== 'string') {
-         throw new Error('Table path must be a non-empty string.');
+         throw new ErrorDatabase('Table path must be a non-empty string.', 'INVALID_TABLE_PATH');
       }
 
       const parts = tablePath.split('.');
       if (parts.length !== 2) {
-         throw new Error('Table path must be in the format "schema.table".');
+         throw new ErrorDatabase('Table path must be in the format "schema.table".', 'INVALID_TABLE_PATH_FORMAT');
       }
 
       const isValid = parts.every(part => this.charsVerifier(part, ignoreChars));
       if (!isValid) {
-         throw new Error(`Invalid table path: ${tablePath}`);
+         throw new ErrorDatabase(`Invalid table path: ${tablePath}`, 'INVALID_TABLE_PATH_CHARACTERS');
       }
 
       return `${tablePath}`;
@@ -107,7 +109,7 @@ class SQL {
     * @param {Array<{ path: string, alias?: string }>|string[]} [paths=[{ path: this.tablePath, alias: '' }]]
     *   Array of table paths (with optional aliases) or strings in 'schema.table' format.
     * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL} The query builder instance for chaining.
-    * @throws {Error} If any table path or alias is invalid.
+    * @throws {ErrorDatabase} If any table path or alias is invalid.
     */
    from(paths = [{ path: this.tablePath, alias: '' }]) {
       const parsePaths = paths.map((item) => {
@@ -131,22 +133,22 @@ class SQL {
     * @param {string} [joinType='LEFT'] - The type of join to perform. Must be one of: 'LEFT', 'RIGHT', 'INNER', 'OUTER'.
     * @param {string} [alias=''] - Optional alias for the joined table. If not provided, the table name will be used as the alias.
     * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL} The query builder instance for chaining.
-    * @throws {Error} If tablePath is not a non-empty string.
-    * @throws {Error} If FROM clause is not set before adding JOIN.
-    * @throws {Error} If joinType is not one of the allowed values.
+    * @throws {ErrorDatabase} If tablePath is not a non-empty string.
+    * @throws {ErrorDatabase} If FROM clause is not set before adding JOIN.
+    * @throws {ErrorDatabase} If joinType is not one of the allowed values.
     */
    join(tablePath, joinType = 'LEFT', alias = '') {
       if (!tablePath || typeof tablePath !== 'string') {
-         throw new Error('Table path must be a non-empty string.');
+         throw new ErrorDatabase('Table path must be a non-empty string.', 'INVALID_TABLE_PATH');
       }
 
       const verifiedPath = this.tablePathVerifier(tablePath);
       if (!this.fromClause) {
-         throw new Error('FROM clause must be set before adding JOIN clauses.');
+         throw new ErrorDatabase('FROM clause must be set before adding JOIN clauses.', 'FROM_CLAUSE_NOT_SET');
       }
 
       if (!['LEFT', 'RIGHT', 'INNER', 'OUTER'].includes(joinType.toUpperCase())) {
-         throw new Error('Join type must be one of: LEFT, RIGHT, INNER, OUTER.');
+         throw new ErrorDatabase('Join type must be one of: LEFT, RIGHT, INNER, OUTER.', 'INVALID_JOIN_TYPE');
       }
 
       const splitTablePath = tablePath.split('.');
@@ -165,11 +167,11 @@ class SQL {
     * @param {string} fieldOut - The field from the outer (joined) table, e.g., "table1.id".
     * @param {string} fieldIn - The field from the inner (base) table, e.g., "table2.foreign_id".
     * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL} The query builder instance for chaining.
-    * @throws {Error} If either fieldOut or fieldIn is not provided.
+    * @throws {ErrorDatabase} If either fieldOut or fieldIn is not provided.
     */
    on(fieldOut, fieldIn) {
       if (!fieldOut || !fieldIn) {
-         throw new Error('Both fields for ON clause must be provided.');
+         throw new ErrorDatabase('Both fields for ON clause must be provided.', 'ON_CLAUSE_FIELDS_REQUIRED');
       }
 
       this.onClause = `ON ${fieldOut} = ${fieldIn}`;
@@ -180,11 +182,11 @@ class SQL {
     * Sets the schema name for the query.
     * @param {string} schemaName
     * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
-    * @throws {Error} If schema name is not a string.
+    * @throws {ErrorDatabase} If schema name is not a string.
     */
    schema(schemaName) {
       if (typeof schemaName !== 'string') {  
-         throw this.database.toError('Schema name must be a string.');  
+         throw new ErrorDatabase('Schema name must be a string.', 'INVALID_SCHEMA_NAME');
       }
 
       this.schemaName = schemaName;
@@ -195,11 +197,11 @@ class SQL {
     * Sets the table name for the query.
     * @param {string} tableName
     * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
-    * @throws {Error} If table name is not a string.
+    * @throws {ErrorDatabase} If table name is not a string.
     */
    table(tableName) {
       if (typeof tableName !== 'string') {  
-         throw this.database.toError('Table name must be a string.');  
+         throw new ErrorDatabase('Table name must be a string.', 'INVALID_TABLE_NAME');
       }
 
       this.tableName = tableName;
@@ -249,7 +251,7 @@ class SQL {
          }).join(' AND ');
       } else {
          // If conditions is not an object or array, we throw an error
-         throw this.database.toError({ code: 400, message: 'Conditions must be an object or an array.' });
+         throw new ErrorDatabase('Conditions must be an object or an array.', 'INVALID_CONDITIONS');
       }
 
       if (result) {
@@ -265,11 +267,11 @@ class SQL {
     * Adds a LIMIT clause to the query.
     * @param {number} limit - The maximum number of records to return.
     * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
-    * @throws {Error} If limit is not a positive number.
+    * @throws {ErrorDatabase} If limit is not a positive number.
     */
    limit(limit = 10) {
       if (typeof limit !== 'number' || limit <= 0) {
-         throw this.database.toError({ code: 400, message: 'Limit must be a positive number.' });
+         throw new ErrorDatabase('Limit must be a positive number.', 'INVALID_LIMIT');
       }
 
       this.limitClause = `LIMIT ${limit}`;
@@ -280,11 +282,11 @@ class SQL {
     * Adds a RETURNING clause to the query (for INSERT/UPDATE/DELETE).
     * @param {string|string[]} columns - The columns to return.
     * @returns {InsertSQL|SelectSQL|UpdateSQL|DeleteSQL}
-    * @throws {Error} If columns is not a string or array of strings.
+    * @throws {ErrorDatabase} If columns is not a string or array of strings.
     */
    returning(columns = ['*']) {
       if (typeof columns !== 'string' && !Array.isArray(columns)) {
-         throw new Error('Columns must be a string or an array of strings.');
+         throw new ErrorDatabase('Columns must be a string or an array of strings.', 'INVALID_RETURNING_COLUMNS');
       }
 
       if (Array.isArray(columns)) {
@@ -305,7 +307,7 @@ class SQL {
          const response = await this.database.pool.query(this.toString(), this.values);
 
          if (!response || !response.rows) {
-            return this.database.toError('No data returned from the database.');
+            throw new ErrorDatabase('No data returned from the database.', 'DATABASE_NO_DATA', response);
          }
 
          return {
@@ -328,7 +330,7 @@ class SQL {
             mappedError = { ...error, code: 404 }; 
          }
 
-         return this.database.toError(mappedError);
+         throw new ErrorDatabase(`Database query execution failed: ${error.message}`, 'DATABASE_QUERY_ERROR', error);
       }
    }
 

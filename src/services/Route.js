@@ -16,7 +16,7 @@ class Route {
     * @param {Object} setup - Route configuration object.
     * @param {string} setup.path - The route path (e.g., '/users').
     * @param {'GET'|'POST'|'PUT'|'DELETE'} setup.method - The HTTP method (e.g., 'GET', 'POST', 'PUT', 'DELETE').
-    *  @param {boolean} [setup.authProtected=false] - Whether the route requires authentication.
+    * @param {boolean} [setup.authProtected=false] - Whether the route requires authentication.
     * @param {Function[]} [setup.middlewares] - Optional array of Express middleware functions.
     * @param {Function} setup.controller - The route handler/controller function.
     *
@@ -77,21 +77,21 @@ class Route {
    /**
     * Validates the setup object for required properties and allowed HTTP methods.
     * @param {Object} setup - The route configuration object.
-    * @throws {Error} If required properties are missing or method is invalid.
+    * @throws {ErrorRoute} If required properties are missing or method is invalid.
     */
    validateConfigs(setup) {
       const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'];
 
       if (!setup.path) {
-         throw new Error(`It's required to declare a path for the Route service!`);
+         throw new ErrorRoute(`It's required to declare a path for the Route service!`, 'ROUTE_PATH_REQUIRED');
       }
 
       if (!setup.method || typeof setup.method !== 'string') {
-         throw new Error(`It's required to select a method for the Route service! Allowed methods are: ${allowedMethods.join(', ')}`);
+         throw new ErrorRoute(`It's required to select a method for the Route service! Allowed methods are: ${allowedMethods.join(', ')}`, 'ROUTE_METHOD_REQUIRED');
       }
 
       if (!allowedMethods.includes(setup.method.toUpperCase())) {
-         throw new Error(`Invalid method "${setup.method}" for the Route service! Allowed methods are: ${allowedMethods.join(', ')}`);
+         throw new ErrorRoute(`Invalid method "${setup.method}" for the Route service! Allowed methods are: ${allowedMethods.join(', ')}`, 'ROUTE_METHOD_INVALID');
       }
    }
 
@@ -121,10 +121,7 @@ class Route {
          if (typeof controller !== 'function') {
             this.controller = () => {};
          } else {
-            this.controller = controller.bind({
-               getAPI: () => this.apiServer,
-               getDataBase: () => this.apiServer?.database,
-            });
+            this.controller = controller.bind(controllerContext);
          }
       } else {
          this.controller = () => {};
