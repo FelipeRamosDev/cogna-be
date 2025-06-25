@@ -29,13 +29,13 @@ describe('Schema', () => {
 
       it('should throw if name is missing', () => {
          expect(() => new Schema({})).toThrow(
-            "Schema constructor requires a valid 'name' property of type string."
+            'Schema constructor requires a valid "name" property of type string.'
          );
       });
 
       it('should throw if name is not a string', () => {
          expect(() => new Schema({ name: 123 })).toThrow(
-            "Schema constructor requires a valid 'name' property of type string."
+            'Schema constructor requires a valid "name" property of type string.'
          );
       });
    });

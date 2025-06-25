@@ -8,6 +8,7 @@ describe('Logout Controller', () => {
       res = {
          status: jest.fn().mockReturnThis(),
          json: jest.fn().mockReturnThis(),
+         send: function (data) { return this.json(data); },
          clearCookie: jest.fn().mockReturnThis(),
       };
    });
@@ -25,7 +26,13 @@ describe('Logout Controller', () => {
       req.session.destroy.mockImplementation(cb => cb(error));
       await logoutController(req, res);
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ success: false, message: 'Logout failed', error });
+      expect(res.json).toHaveBeenCalledWith(
+         expect.objectContaining({
+            error: true,
+            message: 'Logout failed',
+            code: 'LOGOUT_ERROR'
+         })
+      );
    });
 
    it('should handle unexpected error', async () => {
@@ -33,7 +40,11 @@ describe('Logout Controller', () => {
       await logoutController(req, res);
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith(
-         expect.objectContaining({ success: false, message: expect.stringContaining('An error occurred') })
+         expect.objectContaining({
+            error: true,
+            message: expect.stringContaining('An error occurred'),
+            code: 'LOGOUT_ERROR'
+         })
       );
    });
 });
