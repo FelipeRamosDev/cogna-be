@@ -4,6 +4,7 @@ const SelectSQL = require('./builders/SelectSQL');
 const InsertSQL = require('./builders/InsertSQL');
 const UpdateSQL = require('./builders/UpdateSQL');
 const DeleteSQL = require('./builders/DeleteSQL');
+const ErrorDatabase = require('../../models/errors/ErrorDatabase');
 
 /**
  * PostgresDB is a database adapter for PostgreSQL, extending the base DataBase class.
@@ -62,12 +63,12 @@ class PostgresDB extends DataBase {
     * to ensure the database is ready for use.
     *
     * @async
-    * @throws {Object} Throws a standardized error object if the connection or initialization fails.
+    * @throws {ErrorDatabase} Throws a standardized error object if the connection or initialization fails.
     * @returns {Promise<void>} Resolves when the database is initialized and ready.
     */
    async init() {
       if (!this.pool || !this.pool.connect) {
-         throw this.toError('Database connection pool is not initialized.');
+         throw new ErrorDatabase('Database connection pool is not initialized.', 'DB_POOL_NOT_INITIALIZED');
       }
 
       try {
@@ -82,7 +83,7 @@ class PostgresDB extends DataBase {
          console.log('PostgresDB connected successfully');
          return this;
       } catch (error) {
-         throw this.toError('Failed to connect to PostgresDB: ' + error.message);
+         throw new ErrorDatabase('Failed to connect to PostgresDB: ' + error.message, 'DB_CONNECTION_ERROR');
       }
    }
 
@@ -101,7 +102,7 @@ class PostgresDB extends DataBase {
          const [ user ] = data || [];
 
          if (error) {
-            throw this.toError('Error checking for existing test user: ' + error.message);
+            throw new ErrorDatabase('Error checking for existing test user: ' + error.message);
          }
 
          if (!user) {
@@ -120,7 +121,7 @@ class PostgresDB extends DataBase {
             }
          }
       } catch (error) {
-         console.error(this.toError('Error creating test user: ' + error.message));
+         throw new ErrorDatabase('Error creating test user: ' + error.message, 'TEST_USER_CREATION_ERROR', error);
       }
    }
 
@@ -133,7 +134,7 @@ class PostgresDB extends DataBase {
          const result = await this.pool.query('SELECT 1');
          return Boolean(result.rowCount > 0);
       } catch (error) {
-         this.toError('Error checking connection: ' + error.message);
+         console.error(new ErrorDatabase('Error checking connection: ' + error.message, 'DB_CONNECTION_CHECK_ERROR'));
          return false;
       }
    }
@@ -157,8 +158,7 @@ class PostgresDB extends DataBase {
       try {
          await this.pool.query(schema.buildCreateSchemaQuery());
       } catch (error) {
-         this.toError('Error creating schema: ' + error.message);
-         return;
+         throw new ErrorDatabase('Error creating schema: ' + error.message, 'SCHEMA_CREATION_ERROR', error);
       }
 
       try {
@@ -166,7 +166,7 @@ class PostgresDB extends DataBase {
             await this.createTable(schemaName, table);
          }
       } catch (error) {
-         this.toError('Error creating tables: ' + error.message);
+         throw new ErrorDatabase('Error creating tables: ' + error.message, 'TABLE_CREATION_ERROR', error);
       }
    }
 
@@ -183,7 +183,7 @@ class PostgresDB extends DataBase {
          await this.pool.query(querySQL);
          await this.syncTable(table.name, schemaName, table.fields);
       } catch (error) {;
-         return this.toError(`Error creating table ${table.name} in schema ${schemaName}: ${error.message}`);
+         throw new ErrorDatabase(`Error creating table ${table.name} in schema ${schemaName}: ${error.message}`, 'TABLE_CREATION_ERROR', error);
       }
    }
 

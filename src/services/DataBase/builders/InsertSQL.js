@@ -1,3 +1,4 @@
+const ErrorDatabase = require('../../../models/errors/ErrorDatabase');
 const SQL = require('./SQL');
 
 /**
@@ -38,11 +39,11 @@ class InsertSQL extends SQL {
     * Sets the data to be inserted in the query.
     * @param {Object} data - The data object where keys are column names and values are the values to insert.
     * @returns {InsertSQL}
-    * @throws {Error} If data is not an object.
+    * @throws {ErrorDatabase} If data is not an object.
     */
    data(data) {
       if (typeof data !== 'object' || data === null) {
-         throw new Error('Data must be an object');
+         throw new ErrorDatabase('Data must be an object', 'INSERT_QUERY_INVALID_DATA');
       }
 
       const insertClause = [ 'INSERT INTO', this.tablePath ];

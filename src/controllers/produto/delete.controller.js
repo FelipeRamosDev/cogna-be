@@ -1,18 +1,18 @@
+const ErrorRequestHTTP = require("../../models/errors/ErrorRequestHTTP");
+
 module.exports = async function (req, res) {
    const DB = this.getDataBase();
-   const API = this.getAPI();
    const productID = req.body.productID;
 
    try {
       const deleted = await DB.delete('products_schema', 'products').where({ id: productID }).exec();
       if (deleted.error) {
-         console.error('Error deleting product:', deleted);
-         return res.status(400).send(API.toError(deleted));
+         return new ErrorRequestHTTP('Error deleting product', 400, 'PRODUCT_DELETION_ERROR').send(res);
       }
 
       res.status(200).send({ success: true });
    } catch (error) {
-      console.error('Error deleting product:', error);
-      return res.status(500).send(API.toError('Internal server error'));
+      console.error(error);
+      return new ErrorRequestHTTP().send(res);
    }
 }

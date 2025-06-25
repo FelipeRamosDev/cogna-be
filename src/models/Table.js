@@ -1,3 +1,4 @@
+const ErrorDatabase = require("./errors/ErrorDatabase");
 const Field = require("./Field");
 
 /**
@@ -19,7 +20,7 @@ class Table {
       const { name, fields = [] } = setup;
 
       if (!name) {
-         throw new Error('Table name is required');
+         throw new ErrorDatabase('Table name is required', 'TABLE_NAME_REQUIRED');
       }
 
       this.name = name;
@@ -30,16 +31,16 @@ class Table {
     * Returns a field object by name from this table.
     * @param {string} fieldName - The name of the field.
     * @returns {Field} The field object.
-    * @throws {Error} If fieldName is not provided or field is not found.
+    * @throws {ErrorDatabase} If fieldName is not provided or field is not found.
     */
    getField(fieldName) {
       if (!fieldName || typeof fieldName !== 'string') {
-         throw new Error("getField method requires a valid 'fieldName' parameter of type string.");
+         throw new ErrorDatabase('getField method requires a valid "fieldName" parameter of type string.', 'FIELD_NAME_REQUIRED');
       }
 
       const field = this.fields.find(f => f.name === fieldName);
       if (!field) {
-         throw new Error(`Field ${fieldName} not found in table ${this.name}.`);
+         throw new ErrorDatabase(`Field ${fieldName} not found in table ${this.name}.`, 'FIELD_NOT_FOUND');
       }
 
       return field;
@@ -49,11 +50,11 @@ class Table {
     * Builds the SQL query to create this table in the given schema.
     * @param {string} schemaName - The name of the schema.
     * @returns {string} The SQL CREATE TABLE query.
-    * @throws {Error} If schemaName or table name is not set.
+    * @throws {ErrorDatabase} If schemaName or table name is not set.
     */
    buildCreateTableQuery(schemaName) {
       if (!schemaName || !this.name) {
-         throw new Error('Table name and schema name is required to build the "create table" query');
+         throw new ErrorDatabase('Table name and schema name is required to build the "create table" query', 'TABLE_NAME_OR_SCHEMA_NAME_REQUIRED');
       }
 
       const fieldsDefinition = this.fields.map(field => field.buildDefinitionSQL()).join(', ');

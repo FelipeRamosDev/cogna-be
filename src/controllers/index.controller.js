@@ -1,3 +1,5 @@
+const ErrorRequestHTTP = require("../models/errors/ErrorRequestHTTP");
+
 module.exports = async function(req, res) {
    const db = this.getDataBase();
    const api = this.getAPI();
@@ -6,8 +8,7 @@ module.exports = async function(req, res) {
       const { success, data } = await db.select('products_schema', 'products').sort({ created_at: 'DESC' }).exec();
       const products = data;
       if (!success) {
-         res.status(404).send(api.toError('Error on products reading on database!'));
-         return;
+         return new ErrorRequestHTTP('Error on products reading on database!', 404, 'PRODUCTS_READING_ERROR').send(res);
       }
    
       res.status(200).send({
@@ -15,6 +16,6 @@ module.exports = async function(req, res) {
          products: products || []
       });
    } catch (error) {
-      res.status(500).send(api.toError('Internal server error'));
+      return new ErrorRequestHTTP().send(res);
    }
 }

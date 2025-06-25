@@ -1,28 +1,25 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const ErrorRequestHTTP = require('../../models/errors/ErrorRequestHTTP');
 
 module.exports = async function(req, res) {
    const DB = this.getDataBase();
-   const api = this.getAPI();
    const { email, password } = req.body;
 
    if (!email || !password) {
-      const error = api.toError({ status: 400, code: 'REQUIRED_PARAMS', message: 'Email and password are required!' });
-      return res.status(error.status).send(error);
+      return new ErrorRequestHTTP('Email and password are required!', 400, 'REQUIRED_PARAMS').send(res);
    }
 
    try {
       const { data } = await DB.select('users_schema', 'users').where({ email }).exec();
       const [ user ] = data; // Assuming the query returns an array of users
       if (!user) {
-         const error = api.toError({ status: 400, code: 'INVALID_PARAM', message: 'Invalid email!' });
-         return res.status(error.status).send(error);
+         return new ErrorRequestHTTP('User not found!', 404, 'USER_NOT_FOUND').send(res);
       }
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-         const error = api.toError({ status: 400, code: 'PASSWORD_MISMATCH', message: 'Invalid password!' });
-         return res.status(error.status).send(error);
+         return new ErrorRequestHTTP('Invalid password!', 400, 'PASSWORD_MISMATCH').send(res);
       }
 
       req.session.user = {
@@ -36,7 +33,7 @@ module.exports = async function(req, res) {
 
       res.status(200).send({ success: true, user });
    } catch (error) {
-         console.error(error)
-      res.status(500).send(api.toError());
+      console.error(error);
+      return new ErrorRequestHTTP().send(res);
    }
 }

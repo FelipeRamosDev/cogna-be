@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const Route = require('./Route');
+const ErrorAPIServer = require('../models/errors/ErrorAPIServer');
 
 /**
  * APIServer Service
@@ -82,12 +83,16 @@ class APIServer {
          cookie: { secure: false } // true if HTTPS
       }));
 
-      await this.database.init();
-      this.middlewares.map(middleware => this.app.use(middleware));      
-      this.loadRoutes();
-
-      this.app.listen(this.port, this.host, this.onListen);
-      return this;
+      try {
+         await this.database.init();
+         this.middlewares.map(middleware => this.app.use(middleware));      
+         this.loadRoutes();
+   
+         this.app.listen(this.port, this.host, this.onListen);
+         return this;
+      } catch (error) {
+         throw new ErrorAPIServer(`Failed to initialize APIServer: ${error.message}`, 'API_SERVER_INIT_ERROR', error);
+      }
    }
 
    /**
@@ -96,6 +101,10 @@ class APIServer {
     * @returns {Route|undefined} The Route instance if found, otherwise undefined.
     */
    getRoute(path) {
+      if (!path || typeof path !== 'string') {
+         throw new ErrorAPIServer('Route path must be a non-empty string.', 'ROUTE_PATH_INVALID');
+      }
+
       return this.routes.get(path);
    }
 
