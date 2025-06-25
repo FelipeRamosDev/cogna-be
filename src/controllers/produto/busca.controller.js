@@ -43,8 +43,6 @@ module.exports = async function (req, res) {
          products: data
       });
    } catch (error) {
-      console.error(error);
-
       if (error instanceof ErrorDatabase) {
          return new ErrorRequestHTTP(error.message, 404, error.code).send(res);
       }

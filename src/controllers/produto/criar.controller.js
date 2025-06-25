@@ -16,7 +16,6 @@ module.exports = async function(req, res) {
 
       res.status(201).send({ success: true, created: newProduct });
    } catch (error) {
-      console.error(error);
       return new ErrorRequestHTTP('Error creating product', 400, 'PRODUCT_CREATION_ERROR').send(res);
    }
 }

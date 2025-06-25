@@ -38,7 +38,6 @@ module.exports = function (req, res) {
          safeUnlink();
          res.status(201).send({ success: true, products });
       } catch (error) {
-         console.error(error);
          safeUnlink();
          return new ErrorRequestHTTP('Error importing product', 400, 'PRODUCT_IMPORT_ERROR').send(res);
       }

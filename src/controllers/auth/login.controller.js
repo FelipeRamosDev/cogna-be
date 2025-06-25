@@ -33,7 +33,6 @@ module.exports = async function(req, res) {
 
       res.status(200).send({ success: true, user });
    } catch (error) {
-      console.error(error);
       return new ErrorRequestHTTP().send(res);
    }
 }

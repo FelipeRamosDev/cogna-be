@@ -15,7 +15,6 @@ module.exports = async (req, res) => {
          return res.send({ success: true, message: 'Logout successful' });
       });
    } catch (error) {
-      console.error(error);
       return new ErrorRequestHTTP('An error occurred during logout', 500, 'LOGOUT_ERROR').send(res);
    }
 }
