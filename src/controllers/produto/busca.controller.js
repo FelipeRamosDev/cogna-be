@@ -30,7 +30,7 @@ module.exports = async function (req, res) {
 
       if (error) {
          const errorData = API.toError('An error occurred while fetching products.');
-         return res.status(500).json(errorData);
+         return res.status(401).send(errorData);
       }
 
       res.status(200).send({
@@ -39,6 +39,6 @@ module.exports = async function (req, res) {
       });
    } catch (error) {
       const errorData = API.toError('An error occurred while processing your request.');
-      return res.status(500).send(errorData);
+      return res.status(error.code).send(errorData);
    }
 }
