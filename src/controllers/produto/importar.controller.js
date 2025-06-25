@@ -2,6 +2,7 @@ const fs = require('fs');
 
 module.exports = function (req, res) {
    const db = this.getDataBase();
+   const userID = req.session.user.id;
 
    if (!req.file) {
       return res.status(400).send({ error: 'No file uploaded' });
@@ -16,8 +17,9 @@ module.exports = function (req, res) {
          const products = JSON.parse(data);
 
          for (const product of products) {
-            const imported = await db.insert('products_schema', 'products').data(product).exec();
+            product.author_id = userID;
 
+            const imported = await db.insert('products_schema', 'products').data(product).exec();
             if (imported.error) {
                console.log('Error importing product:', imported);
                return res.status(imported.code || 500).send(imported);
