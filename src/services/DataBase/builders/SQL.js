@@ -231,7 +231,7 @@ class SQL {
             this.values.push(props);
             return `${key} = $${this.values.length}`;
          }).join(' OR ');
-      } else if (typeof conditions === 'object') {
+      } else if (typeof conditions === 'object' && conditions !== null) {
          // If conditions is an object, we assume it's a list of AND conditions
 
          result = Object.entries(conditions).map((current) => {
@@ -247,6 +247,9 @@ class SQL {
             this.values.push(props);
             return `${key} = $${this.values.length}`;
          }).join(' AND ');
+      } else {
+         // If conditions is not an object or array, we throw an error
+         throw this.database.toError({ code: 400, message: 'Conditions must be an object or an array.' });
       }
 
       if (result) {
@@ -266,7 +269,7 @@ class SQL {
     */
    limit(limit = 10) {
       if (typeof limit !== 'number' || limit <= 0) {
-         throw new Error('Limit must be a positive number.');
+         throw this.database.toError({ code: 400, message: 'Limit must be a positive number.' });
       }
 
       this.limitClause = `LIMIT ${limit}`;
