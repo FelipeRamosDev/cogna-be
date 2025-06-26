@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "npx jest"
+    "test": "npx jest --runInBand --detectOpenHandles --forceExit"
   },
   "repository": {
     "type": "git",

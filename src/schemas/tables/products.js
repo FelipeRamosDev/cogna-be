@@ -10,6 +10,15 @@ const products = new Table({
       { name: 'price', type: 'DECIMAL(10, 2)', notNull: true },
       { name: 'stock_quantity', type: 'INTEGER', defaultValue: 0 },
       { name: 'category', type: 'VARCHAR(255)', defaultValue: 'General' },
+      {
+         name: 'author_id',
+         type: 'INTEGER',
+         relatedField: {
+            table: 'users',
+            schema: 'users_schema',
+            field: 'id'
+         }
+      }
    ]
 });
 
