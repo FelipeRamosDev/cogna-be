@@ -9,15 +9,25 @@ module.exports = async function (req, res) {
    }
 
    try {
-      const { data } = await db.select('products_schema', 'products').where({ id: productID }).exec();
-      const products = data;
-      if (!products.length) {
+      const productQuery = db.select('products_schema', 'products');
+
+      productQuery.where({ 'products.id': productID });
+      productQuery.limit(1);
+      productQuery.populate('author_id', [
+         ['users.first_name', 'author_first_name'],
+         ['users.last_name', 'author_last_name'],
+         ['users.email', 'author_email'],
+      ]);
+
+      const { data = [] } = await productQuery.exec();
+      const [ product ] = data;
+      if (!product) {
          return new ErrorRequestHTTP('Product not found.', 404, 'PRODUCT_NOT_FOUND').send(res);
       }
    
       res.status(200).send({
          success: true,
-         product: products[0]
+         product: product
       });
    } catch (error) {
       return new ErrorRequestHTTP().send(res);
