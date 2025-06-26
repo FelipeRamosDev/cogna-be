@@ -20,7 +20,7 @@ services:
     depends_on:
       - postgres
     networks:
-      - default
+      - cogna-net
     restart: unless-stopped
 
   postgres:
@@ -35,12 +35,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - default
+      - cogna-net
     restart: unless-stopped
 
 volumes:
   postgres_data:
 
 networks:
-  cogna-be_default:
+  cogna-net:
     external: true

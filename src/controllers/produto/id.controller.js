@@ -1,25 +1,35 @@
+const ErrorRequestHTTP = require("../../models/errors/ErrorRequestHTTP");
+
 module.exports = async function (req, res) {
    const db = this.getDataBase();
 
    const productID = Number(req.params.id);
    if (!productID || productID === 'undefined' || productID === 'null') {
-      res.status(400).send({ error: true, message: 'Product ID parameter is required.' });
-      return;
+      return new ErrorRequestHTTP('Product ID parameter is required.', 400, 'PRODUCT_ID_REQUIRED').send(res);
    }
 
    try {
-      const { data } = await db.select('products_schema', 'products').where({ id: productID }).exec();
-      const products = data;
-      if (!products.length) {
-         res.status(404).send({ error: true, message: 'Product not found.' });
-         return;
+      const productQuery = db.select('products_schema', 'products');
+
+      productQuery.where({ 'products.id': productID });
+      productQuery.limit(1);
+      productQuery.populate('author_id', [
+         ['users.first_name', 'author_first_name'],
+         ['users.last_name', 'author_last_name'],
+         ['users.email', 'author_email'],
+      ]);
+
+      const { data = [] } = await productQuery.exec();
+      const [ product ] = data;
+      if (!product) {
+         return new ErrorRequestHTTP('Product not found.', 404, 'PRODUCT_NOT_FOUND').send(res);
       }
    
       res.status(200).send({
          success: true,
-         product: products[0]
+         product: product
       });
    } catch (error) {
-      res.status(error.code || 500).send({ error: true, message: 'Internal Server Error' });
+      return new ErrorRequestHTTP().send(res);
    }
 }

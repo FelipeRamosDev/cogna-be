@@ -1,6 +1,6 @@
 const request = require('supertest');
 
-describe('GET /produto/:id', () => {
+describe('APIServer', () => {
    let apiServer
 
    beforeAll(async () => {

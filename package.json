@@ -1,12 +1,12 @@
 {
   "name": "cogna-be",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "npx jest"
+    "test": "npx jest --runInBand --detectOpenHandles --forceExit"
   },
   "repository": {
     "type": "git",

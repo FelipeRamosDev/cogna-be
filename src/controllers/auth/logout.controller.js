@@ -1,14 +1,20 @@
+const ErrorRequestHTTP = require("../../models/errors/ErrorRequestHTTP");
+
 module.exports = async (req, res) => {
    try {
+      if (!req.session || !req.session.destroy) {
+         return new ErrorRequestHTTP('Session not found', 500, 'LOGOUT_ERROR').send(res);
+      }
+
       req.session.destroy((err) => {
          if (err) {
-            return res.status(500).json({ success: false, message: 'Logout failed', error: err });
+            return new ErrorRequestHTTP('Logout failed', 500, 'LOGOUT_ERROR').send(res);
          }
 
          res.clearCookie('token'); // Clear the session cookie
-         return res.json({ success: true, message: 'Logout successful' });
+         return res.send({ success: true, message: 'Logout successful' });
       });
    } catch (error) {
-      return res.status(500).json({ success: false, message: 'An error occurred during logout', error });
+      return new ErrorRequestHTTP('An error occurred during logout', 500, 'LOGOUT_ERROR').send(res);
    }
 }

@@ -1,3 +1,6 @@
+const ErrorDatabase = require("./errors/ErrorDatabase");
+const RelatedField = require("./RelatedField");
+
 /**
  * Field class represents a field in a database model.
  * It initializes with a key, type, and optional properties like notNull, unique, defaultValue, primaryKey, and autoIncrement.
@@ -12,7 +15,7 @@
  * @param {boolean} [setup.unique=false] - Whether the field must be unique.
  * @param {boolean} [setup.primaryKey=false] - Whether the field is a primary key.
  * @param {boolean} [setup.autoIncrement=false] - Whether the field is auto-incrementing.
- * @throws {Error} If name or type is not provided or is not a string.
+ * @throws {ErrorDatabase} If name or type is not provided or is not a string.
  */
 class Field {
    /**
@@ -28,10 +31,11 @@ class Field {
          primaryKey,
          autoIncrement,
          defaultValue,
+         relatedField
       } = setup;
 
       if (!name || typeof name !== 'string') {
-         throw new Error('Field name is required');
+         throw new ErrorDatabase('Field name is required', 'FIELD_NAME_REQUIRED');
       }
 
       this.name = name;
@@ -41,6 +45,10 @@ class Field {
       this.unique = Boolean(unique);
       this.primaryKey = Boolean(primaryKey);
       this.autoIncrement = Boolean(autoIncrement);
+
+      if (relatedField) {
+         this.relatedField = new RelatedField(relatedField);
+      }
    }
 
    /**
@@ -48,43 +56,58 @@ class Field {
     * @returns {string} The SQL definition for the field.
     */
    buildDefinitionSQL() {
-      const constraints = [];
+      const SQLQuery = [];
 
       if (this.type) {
-         constraints.push(this.type);
+         SQLQuery.push(this.type);
       }
 
       if (this.primaryKey) {
-         constraints.push('SERIAL PRIMARY KEY');
+         SQLQuery.push('SERIAL PRIMARY KEY');
       }
 
       if (this.unique) {
-         constraints.push('UNIQUE');
+         SQLQuery.push('UNIQUE');
       }
 
       if (this.autoIncrement) {
-         constraints.push('AUTOINCREMENT');
+         SQLQuery.push('AUTOINCREMENT');
       }
 
       if (this.notNull) {
-         constraints.push('NOT NULL');
+         SQLQuery.push('NOT NULL');
       }
 
       if (this.defaultValue !== undefined && this.defaultValue !== null) {
          if (this.defaultValue === 'CURRENT_TIMESTAMP') {
-            constraints.push('DEFAULT CURRENT_TIMESTAMP');
+            SQLQuery.push('DEFAULT CURRENT_TIMESTAMP');
          }
          
          else if (typeof this.defaultValue === 'string') {
-            constraints.push(`DEFAULT '${this.defaultValue}'`);
+            SQLQuery.push(`DEFAULT '${this.defaultValue}'`);
          }
          
          else {
-            constraints.push(`DEFAULT ${this.defaultValue}`);
+            SQLQuery.push(`DEFAULT ${this.defaultValue}`);
          }
       }
 
-      return `${this.name} ${constraints.join(' ')}`;
+      if (this.relatedField) {
+         const { tablePath, field } = this.relatedField;
+         if (!tablePath || !field) {
+            throw new ErrorDatabase('Foreign key must have both tablePath and field defined', 'FOREIGN_KEY_DEFINITION_REQUIRED');
+         }
+
+         SQLQuery.push(',');
+         SQLQuery.push(`
+            CONSTRAINT fk_${this.name}
+               FOREIGN KEY (${this.name})
+               REFERENCES ${tablePath}(${field})
+               ON DELETE SET NULL
+         `);
+      }
+
+      return `${this.name} ${SQLQuery.join(' ')}`;
    }
 }
 

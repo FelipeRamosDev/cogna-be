@@ -1,23 +1,24 @@
 const jwt = require('jsonwebtoken');
+const ErrorRequestHTTP = require('../models/errors/ErrorRequestHTTP');
 
 function authenticateToken(req, res, next) {
    const authHeader = req.cookies?.token;
 
    if (!authHeader) {
-      return res.status(401).send({ name: 'MISSING_TOKEN', message: 'No token provided.' });
+      return new ErrorRequestHTTP('No token provided', 401, 'MISSING_TOKEN').send(res);
    }
 
    jwt.verify(authHeader, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
-         return res.status(401).send({ name: 'INVALID_TOKEN', message: 'Invalid token.' });
+         return new ErrorRequestHTTP('Invalid token', 401, 'INVALID_TOKEN').send(res);
       }
 
       if (decoded.exp < (Date.now() / 1000)) {
-         return res.status(401).send({ name: 'EXPIRED_TOKEN', message: 'Token has expired.' });
+         return new ErrorRequestHTTP('Token has expired', 401, 'EXPIRED_TOKEN').send(res);
       }
 
       if (decoded.id !== req.session.user?.id) {
-         return res.status(403).send({ name: 'FORBIDDEN', message: 'User ID does not match the token.' });
+         return new ErrorRequestHTTP('User ID does not match the token', 403, 'FORBIDDEN').send(res);
       }
 
       next();

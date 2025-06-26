@@ -1,3 +1,4 @@
+const ErrorDatabase = require('../../../models/errors/ErrorDatabase');
 const SQL = require('./SQL');
 
 /**
@@ -39,7 +40,7 @@ class DeleteSQL extends SQL {
     */
    toString() {
       if (!this.whereClause && !this.isAllowedNullWhere) {
-         throw this.database.toError('Where clause is required for delete queries unless allowNullWhere is set.');
+         throw new ErrorDatabase('Where clause is required for delete queries unless allowNullWhere is set.', 'DELETE_QUERY_NO_WHERE');
       }
 
       return [

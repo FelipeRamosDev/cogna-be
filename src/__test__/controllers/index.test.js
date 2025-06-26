@@ -5,7 +5,7 @@ describe('GET /', () => {
    
    beforeAll(async () => {
       apiServer = await require('../../app');
-   }, 30000);
+   });
 
    it('should respond with 200', async () => {
       const res = await request(apiServer.app).get('/');
