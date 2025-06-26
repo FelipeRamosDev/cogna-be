@@ -27,22 +27,23 @@ module.exports = async function(req, res) {
          last_name: lastName,
          email: email,
          password: hashedPassword
-      }).exec();
+      }).returning().exec();
 
       if (user.error) {
          console.error(user);
          return new ErrorRequestHTTP('Error registering user.', 400, 'DB_ERROR').send(res);
       }
 
+      const [ newUser ] = user.data || [];
       req.session.user = {
-         id: user.id,
-         email: user.email,
-         name: `${user.first_name} ${user.last_name}`,
+         id: newUser.id,
+         email: newUser.email,
+         name: `${newUser.first_name} ${newUser.last_name}`,
       };
 
       const token = jwt.sign(req.session.user, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRATION || '24h' });
       res.cookie('token', token, { httpOnly: true, secure: false });
-      res.status(201).send({ success: true, message: 'User registered successfully.', user });
+      res.status(201).send({ success: true, message: 'User registered successfully.', user: req.session.user });
    } catch (error) {
       return new ErrorRequestHTTP().send(res);
    }  
