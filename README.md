@@ -19,6 +19,7 @@ O projeto foi desenvolvido utilizando Node.js e Express, com foco em modularidad
    ```
 3. Rode o seguinte comando para iniciar os containers do backend e do banco de dados PostgreSQL:
    ```bash
+   docker network create cogna-net
    docker-compose up --build -d
    ```
 
