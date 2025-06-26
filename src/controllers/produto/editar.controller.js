@@ -2,7 +2,6 @@ const ErrorRequestHTTP = require("../../models/errors/ErrorRequestHTTP");
 
 module.exports = async function(req, res) {
    const DB = this.getDataBase();
-   const api = this.getAPI();
    const { id, data } = req.body;
 
    if (!id || !data) {
